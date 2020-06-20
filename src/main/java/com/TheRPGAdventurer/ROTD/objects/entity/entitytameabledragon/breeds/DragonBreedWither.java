@@ -1,15 +1,21 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.inits.ModSounds;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathNode;
 
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
+import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootTableList;
 
 
 public class DragonBreedWither extends DragonBreed {
@@ -78,6 +84,32 @@ public class DragonBreedWither extends DragonBreed {
 	public EnumParticleTypes getSneezeParticle() {
 		return null;
 	}
+
+    @Override
+    public double getBreedHealth() {
+        double base = super.getBreedHealth();
+        return base - (base < 6d ? 0d : 10d);
+    }
+
+    @Override
+    public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+        return ModItems.EssenceWither;
+    }
+
+    @Override
+    public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+        return ModItems.AmuletWither;
+    }
+
+    @Override
+    public Item getShearItem(EntityTameableDragon dragon) {
+        return null;
+    }
+
+    @Override
+    public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+        return LootTableList.ENTITIES_WITHER_SKELETON;
+    }
 
 }
 	

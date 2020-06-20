@@ -9,16 +9,22 @@
  */
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathNode;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.sound.SoundEffectNames;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonLifeStage;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.Item;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -92,6 +98,26 @@ public class DragonBreedWater extends DragonBreed {
     @Override
     public EnumParticleTypes getSneezeParticle() {
         return null;
+    }
+
+    @Override
+    public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+        return ModItems.EssenceWater;
+    }
+
+    @Override
+    public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+        return ModItems.AmuletWater;
+    }
+
+    @Override
+    public Item getShearItem(EntityTameableDragon dragon) {
+        return ModItems.WaterDragonScales;
+    }
+
+    @Override
+    public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+        return DragonMountsLootTables.ENTITIES_DRAGON_WATER;
     }
 
     //	public SoundEffectNames[] getBreathWeaponSoundEffects(EnumDragonLifeStage stage) {

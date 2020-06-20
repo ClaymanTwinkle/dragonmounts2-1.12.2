@@ -9,27 +9,27 @@
  */
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper;
 
-import com.TheRPGAdventurer.ROTD.DragonMountsConfig;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds.DragonBreed;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds.EnumDragonBreed;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.block.Block;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -98,9 +98,7 @@ public class DragonBreedHelper extends DragonHelper {
 
         // read breed points
         NBTTagCompound breedPointTag = nbt.getCompoundTag(NBT_BREED_POINTS);
-        breedPoints.forEach((type, points) -> {
-            points.set(breedPointTag.getInteger(type.getName()));
-        });
+        breedPoints.forEach((type, points) -> points.set(breedPointTag.getInteger(type.getName())));
     }
 
     public Map<EnumDragonBreed, AtomicInteger> getBreedPoints() {
@@ -198,9 +196,7 @@ public class DragonBreedHelper extends DragonHelper {
 
                 // update most dominant breed
                 EnumDragonBreed newType = breedPoints.entrySet().stream()
-                        .max((breed1, breed2) -> Integer.compare(
-                                breed1.getValue().get(),
-                                breed2.getValue().get()))
+                        .max(Comparator.comparingInt(breed -> breed.getValue().get()))
                         .get().getKey();
 
                 if (newType != currentType) {
@@ -233,26 +229,23 @@ public class DragonBreedHelper extends DragonHelper {
      * when it turns into an adult
      */
     public void getBreedHealth() {
-
         IAttributeInstance health = dragon.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
-        double base = DragonMountsConfig.BASE_HEALTH; //90d
+        health.setBaseValue(getBreedType().getBreed().getBreedHealth());
+    }
 
-        switch (getBreedType()) {
-            case NETHER:
-                health.setBaseValue(base + 5d);
-                break;
-            case END:
-                health.setBaseValue(base + 10d);
-                break;
-            case SKELETON:
-                health.setBaseValue(base - (base < 16d ? 0d : 15d)); // Cant have 0 health!
-                break;
-            case WITHER:
-                health.setBaseValue(base - (base < 6d ? 0d : 10d)); // Cant have 0 health!
-                break;
-            default: //All Dragons without special health parameters
-                health.setBaseValue(base);
-                break;
-        }
+    public ItemDragonEssence getDragonEssence() {
+        return getBreedType().getBreed().getDragonEssence(dragon);
+    }
+
+    public ItemDragonAmulet getDragonAmulet() {
+        return getBreedType().getBreed().getDragonAmulet(dragon);
+    }
+
+    public Item getShearItem() {
+        return getBreedType().getBreed().getShearItem(dragon);
+    }
+
+    public ResourceLocation getLootTable() {
+        return getBreedType().getBreed().getLootTable(dragon);
     }
 }

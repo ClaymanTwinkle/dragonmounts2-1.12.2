@@ -289,7 +289,7 @@ public class DragonModel extends ModelBase {
         horn.setRotationPoint(hornPosX, hornPosY, hornPosZ);
         horn.setAngles(hornRotX, hornRotY, hornRotZ);
         horn.isHidden=true;
-        boolean showSpike=breed==EnumDragonBreed.NETHER || breed==EnumDragonBreed.SYLPHID || breed==EnumDragonBreed.STORM;
+        boolean showSpike=breed==EnumDragonBreed.NETHER || breed==EnumDragonBreed.WATER || breed==EnumDragonBreed.STORM;
         horn.showModel=showSpike;
 
         if (mirror) {

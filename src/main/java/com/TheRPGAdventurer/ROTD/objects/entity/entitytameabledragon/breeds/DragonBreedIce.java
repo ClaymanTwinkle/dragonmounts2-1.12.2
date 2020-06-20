@@ -9,10 +9,14 @@
  */
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathNode;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.sound.SoundEffectNames;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonLifeStage;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -20,9 +24,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -158,6 +164,26 @@ public class DragonBreedIce extends DragonBreed {
     @Override
     public EnumParticleTypes getSneezeParticle() {
         return null;
+    }
+
+    @Override
+    public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+        return ModItems.EssenceIce;
+    }
+
+    @Override
+    public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+        return ModItems.AmuletIce;
+    }
+
+    @Override
+    public Item getShearItem(EntityTameableDragon dragon) {
+        return ModItems.IceDragonScales;
+    }
+
+    @Override
+    public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+        return DragonMountsLootTables.ENTITIES_DRAGON_ICE;
     }
 
     public SoundEffectNames[] getBreathWeaponSoundEffects(DragonLifeStage stage) {

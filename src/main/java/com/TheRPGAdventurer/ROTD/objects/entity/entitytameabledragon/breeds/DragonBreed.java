@@ -1,6 +1,7 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
 import com.TheRPGAdventurer.ROTD.DragonMounts;
+import com.TheRPGAdventurer.ROTD.DragonMountsConfig;
 import com.TheRPGAdventurer.ROTD.client.render.dragon.breathweaponFX.BreathWeaponFXEmitter;
 import com.TheRPGAdventurer.ROTD.inits.ModSounds;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
@@ -14,15 +15,14 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.soun
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weapons.BreathWeaponP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonLifeStage;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.util.Pair;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public abstract class DragonBreed {
 
-    public static SoundEffectNames[] soundEffectNames;
+    private static SoundEffectNames[] soundEffectNames;
     protected final Random rand = new Random();
     private final String skin;
     private final int color;
@@ -396,7 +396,7 @@ public abstract class DragonBreed {
                 break;
             }
         }
-        return new Pair<Float, Float>(minAttackRange, maxAttackRange);
+        return new Pair<>(minAttackRange, maxAttackRange);
     }
 
     /**
@@ -461,6 +461,18 @@ public abstract class DragonBreed {
         DragonMounts.loggerLimit.error_once("Illegal passengerNumber:" + passengerNumber);
         return new Vec3d(0, yoffset, 2.2);
     }
+
+    public double getBreedHealth() {
+        return DragonMountsConfig.BASE_HEALTH;
+    }
+
+    public abstract ItemDragonEssence getDragonEssence(EntityTameableDragon dragon);
+
+    public abstract ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon);
+
+    public abstract Item getShearItem(EntityTameableDragon dragon);
+
+    public abstract ResourceLocation getLootTable(EntityTameableDragon dragon);
 
     public enum BreathWeaponSpawnType {PROJECTILE, NODES}
 

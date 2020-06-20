@@ -9,12 +9,18 @@
  */
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 
 /**
  *
@@ -60,7 +66,27 @@ public class DragonBreedFire extends DragonBreed {
 	public void onLivingUpdate(EntityTameableDragon dragon) {
 		if(dragon.isInLava() || dragon.world.isMaterialInBB(dragon.getEntityBoundingBox().grow(-0.10000000149011612D, -0.4000000059604645D, -0.10000000149011612D), Material.FIRE)) doParticles(dragon);
 	}
-	
+
+    @Override
+    public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+        return ModItems.EssenceFire;
+    }
+
+    @Override
+    public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+        return ModItems.AmuletFire;
+    }
+
+    @Override
+    public Item getShearItem(EntityTameableDragon dragon) {
+        return dragon.isMale() ? ModItems.FireDragonScales : ModItems.FireDragonScales2;
+    }
+
+    @Override
+    public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+        return dragon.isMale() ? DragonMountsLootTables.ENTITIES_DRAGON_FIRE : DragonMountsLootTables.ENTITIES_DRAGON_FIRE2;
+    }
+
     private void doParticles(EntityTameableDragon dragon) {
         if (!dragon.isEgg() && !dragon.isBaby()) {
 	        float s = dragon.getScale() * 1.2f;

@@ -1,13 +1,19 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.inits.ModSounds;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathNode;
 
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.init.Biomes;
+import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -71,6 +77,31 @@ public class DragonBreedNether extends DragonBreed {
         if (world instanceof WorldServer && !dragon.isDead && !dragon.isEgg()) {
             doParticles(dragon, EnumParticleTypes.DRIP_LAVA);
         }
+    }
+
+    @Override
+    public double getBreedHealth() {
+        return super.getBreedHealth() + 5d;
+    }
+
+    @Override
+    public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+        return ModItems.EssenceNether;
+    }
+
+    @Override
+    public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+        return ModItems.AmuletNether;
+    }
+
+    @Override
+    public Item getShearItem(EntityTameableDragon dragon) {
+        return dragon.isMale() ? ModItems.NetherDragonScales : ModItems.NetherDragonScales2;
+    }
+
+    @Override
+    public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+        return dragon.isMale() ? DragonMountsLootTables.ENTITIES_DRAGON_NETHER : DragonMountsLootTables.ENTITIES_DRAGON_NETHER2;
     }
 
     private void doParticles(EntityTameableDragon dragon, EnumParticleTypes types) {

@@ -1,12 +1,18 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonLifeStage;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.Item;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -105,5 +111,25 @@ public class DragonBreedStorm extends DragonBreed {
 	public EnumParticleTypes getSneezeParticle() {
 		return null;
 	}
-	
+
+	@Override
+	public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+		return ModItems.EssenceStorm;
+	}
+
+	@Override
+	public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+		return ModItems.AmuletStorm;
+	}
+
+	@Override
+	public Item getShearItem(EntityTameableDragon dragon) {
+		return dragon.isMale() ? ModItems.StormDragonScales : ModItems.SunlightDragonScales2;
+	}
+
+	@Override
+	public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+		return dragon.isMale() ? DragonMountsLootTables.ENTITIES_DRAGON_STORM : DragonMountsLootTables.ENTITIES_DRAGON_STORM2;
+	}
+
 }

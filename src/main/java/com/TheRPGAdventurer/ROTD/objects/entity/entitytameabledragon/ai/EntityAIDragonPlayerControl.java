@@ -48,7 +48,7 @@ public class EntityAIDragonPlayerControl extends EntityAIDragonBase implements P
         double y = dragon.posY;
         double z = dragon.posZ;
 
-        if (dragon.getBreedType() == EnumDragonBreed.SYLPHID) {
+        if (dragon.getBreedType() == EnumDragonBreed.WATER) {
             PotionEffect watereffect = new PotionEffect(MobEffects.WATER_BREATHING, 200);
             if (!rider.isPotionActive(watereffect.getPotion()) && rider.isInWater()) { // If the Potion isn't currently active,
                 rider.addPotionEffect(watereffect); // Apply a copy of the PotionEffect to the player

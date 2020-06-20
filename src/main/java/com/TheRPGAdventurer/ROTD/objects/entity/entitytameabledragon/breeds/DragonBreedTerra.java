@@ -1,9 +1,15 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.BiomeDictionary;
 
 public class DragonBreedTerra extends DragonBreed {
@@ -41,6 +47,26 @@ public class DragonBreedTerra extends DragonBreed {
     public void onLivingUpdate(EntityTameableDragon dragon) {
         boolean isMesa=BiomeDictionary.hasType(dragon.world.getBiome(dragon.getPosition()), BiomeDictionary.Type.MESA);
         if (isMesa && dragon.posY > dragon.world.getHeight() + 8) doParticles(dragon);
+    }
+
+    @Override
+    public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+        return ModItems.EssenceTerra;
+    }
+
+    @Override
+    public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+        return ModItems.AmuletTerra;
+    }
+
+    @Override
+    public Item getShearItem(EntityTameableDragon dragon) {
+        return dragon.isMale() ? ModItems.TerraDragonScales : ModItems.TerraDragonScales2;
+    }
+
+    @Override
+    public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+        return dragon.isMale() ? DragonMountsLootTables.ENTITIES_DRAGON_TERRA : DragonMountsLootTables.ENTITIES_DRAGON_TERRA2;
     }
 
     private void doParticles(EntityTameableDragon dragon) {

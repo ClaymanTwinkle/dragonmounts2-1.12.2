@@ -1,10 +1,16 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 
 public class DragonBreedEnchant extends DragonBreed {
 
@@ -33,8 +39,28 @@ public class DragonBreedEnchant extends DragonBreed {
 	public void onLivingUpdate(EntityTameableDragon dragon) {
 		doParticles(dragon);
 	}
-	
-    private void doParticles(EntityTameableDragon dragon) {
+
+	@Override
+	public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+		return ModItems.EssenceEnchant;
+	}
+
+	@Override
+	public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+		return ModItems.AmuletEnchant;
+	}
+
+	@Override
+	public Item getShearItem(EntityTameableDragon dragon) {
+		return ModItems.EnchantDragonScales;
+	}
+
+	@Override
+	public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+		return DragonMountsLootTables.ENTITIES_DRAGON_ENCHANT;
+	}
+
+	private void doParticles(EntityTameableDragon dragon) {
         if (!dragon.isEgg() && !dragon.isBaby()) {
 	        float s = dragon.getScale() * 1.2f;
 	        for (double x1 = 0; x1 < s + 25; ++x1) {

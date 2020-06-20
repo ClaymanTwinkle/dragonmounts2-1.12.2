@@ -1,9 +1,15 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
+import com.TheRPGAdventurer.ROTD.DragonMountsLootTables;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
+import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 
 public class DragonBreedSunlight extends DragonBreed {
 
@@ -28,8 +34,28 @@ public class DragonBreedSunlight extends DragonBreed {
 	public void onLivingUpdate(EntityTameableDragon dragon) {
 		if(dragon.posY > dragon.world.getHeight() + 8 && dragon.world.isDaytime()) doParticles(dragon);
 	}
-	
-    private void doParticles(EntityTameableDragon dragon) {
+
+	@Override
+	public ItemDragonEssence getDragonEssence(EntityTameableDragon dragon) {
+		return ModItems.EssenceSunlight;
+	}
+
+	@Override
+	public ItemDragonAmulet getDragonAmulet(EntityTameableDragon dragon) {
+		return ModItems.AmuletSunlight;
+	}
+
+	@Override
+	public Item getShearItem(EntityTameableDragon dragon) {
+		return dragon.isMale() ? ModItems.SunlightDragonScales : ModItems.SunlightDragonScales2;
+	}
+
+	@Override
+	public ResourceLocation getLootTable(EntityTameableDragon dragon) {
+		return dragon.isMale() ? DragonMountsLootTables.ENTITIES_DRAGON_SUNLIGHT : DragonMountsLootTables.ENTITIES_DRAGON_SUNLIGHT2;
+	}
+
+	private void doParticles(EntityTameableDragon dragon) {
         if (!dragon.isEgg() && !dragon.isBaby()) {
 	        float s = dragon.getScale() * 1.2f;
 	        for (double x1 = 0; x1 < s + 2; ++x1) {
