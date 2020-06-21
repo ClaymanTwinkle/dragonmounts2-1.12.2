@@ -19,7 +19,7 @@ public class ContainerDragon extends Container {
 	public static final int chestStartIndex = 3;
 
 	public ContainerDragon(final EntityTameableDragon dragon, EntityPlayer player) {
-		this.dragonInv = dragon.dragonInv;
+		this.dragonInv = dragon.getDragonInv();
 		this.dragon = dragon;
 		final int inventoryColumn = 9;
 		dragonInv.openInventory(player);
@@ -47,7 +47,7 @@ public class ContainerDragon extends Container {
 
 			@Override
 			public void onSlotChanged() {
-				ContainerDragon.this.dragon.refreshInventory();
+				ContainerDragon.this.dragon.getSettingHelper().refreshInventory();
 			}
 
 			@SideOnly(Side.CLIENT)

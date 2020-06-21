@@ -10,6 +10,8 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.Drag
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -42,8 +44,8 @@ import org.apache.logging.log4j.Logger;
  * the dragon during breath weapon (eg jaw opening)
  */
 public class DragonBreathHelper extends DragonHelper {
-    private final DataParameter<String> dataParamBreathWeaponTarget;
-    private final DataParameter<Integer> dataParamBreathWeaponMode;
+    private static final DataParameter<String> DATA_BREATH_WEAPON_TARGET = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
+    private static final DataParameter<Integer> DATA_BREATH_WEAPON_MODE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.VARINT);
 
     private final int BREATH_START_DURATION=5; // ticks
     private final int BREATH_STOP_DURATION=5; // ticks
@@ -61,14 +63,14 @@ public class DragonBreathHelper extends DragonHelper {
     public BreathAffectedArea breathAffectedAreaAether=null;
     private static final Logger L=LogManager.getLogger();
 
-    public DragonBreathHelper(EntityTameableDragon dragon, DataParameter<String> i_dataParamBreathWeaponTarget, DataParameter<Integer> i_dataParamBreathWeaponMode) {
+    public DragonBreathHelper(EntityTameableDragon dragon) {
         super(dragon);
         if (dragon.isClient()) {
             breathWeaponEmitter=new BreathWeaponEmitter();
         }
-        dataParamBreathWeaponTarget=i_dataParamBreathWeaponTarget;
-        dataParamBreathWeaponMode=i_dataParamBreathWeaponMode;
-        //dataWatcher.register(dataParamBreathWeaponTarget, "");  //already registered by caller
+        dataWatcher.register(DATA_BREATH_WEAPON_TARGET, "");  //already registered by caller
+        dataWatcher.register(DATA_BREATH_WEAPON_MODE, 0);
+
         breathAffectedArea=new BreathAffectedArea(new BreathWeapon(dragon));
         breathAffectedAreaNether=new BreathAffectedArea(new BreathWeaponNether(dragon));
         breathAffectedAreaIce=new BreathAffectedArea(new BreathWeaponIce(dragon));

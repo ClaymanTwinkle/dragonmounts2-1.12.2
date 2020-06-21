@@ -2,10 +2,8 @@ package com.TheRPGAdventurer.ROTD.network;
 
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -60,19 +58,19 @@ public class MessageDragonInventory implements IMessage {
                 }
 
                 if (message.slot_index == 31) {
-                    dragon.setBanner1(dragon.dragonInv.getStackInSlot(31));
+                    dragon.setBanner1(dragon.getDragonInv().getStackInSlot(31));
                 }
 
                 if (message.slot_index == 32) {
-                    dragon.setBanner1(dragon.dragonInv.getStackInSlot(32));
+                    dragon.setBanner1(dragon.getDragonInv().getStackInSlot(32));
                 }
 
                 if (message.slot_index == 33) {
-                    dragon.setBanner1(dragon.dragonInv.getStackInSlot(33));
+                    dragon.setBanner1(dragon.getDragonInv().getStackInSlot(33));
                 }
 
                 if (message.slot_index == 34) {
-                    dragon.setBanner1(dragon.dragonInv.getStackInSlot(34));
+                    dragon.setBanner1(dragon.getDragonInv().getStackInSlot(34));
                 }
             }
             return null;

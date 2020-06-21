@@ -26,6 +26,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -69,7 +70,7 @@ public class DragonLifeStageHelper extends DragonHelper {
     // the ticks since creation is used to control the dragon's life stage.  It is only updated by the server occasionally.
     // the client keeps a cached copy of it and uses client ticks to interpolate in the gaps.
     // when the watcher is updated from the server, the client will tick it faster or slower to resynchronise
-    private final DataParameter<Integer> dataParam;
+    private static final DataParameter<Integer> DATA_TICKS_SINCE_CREATION = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.VARINT);
     private final ClientServerSynchronisedTickCount ticksSinceCreationClient;
     private DragonLifeStage lifeStagePrev;
     private int eggWiggleX;
@@ -77,11 +78,10 @@ public class DragonLifeStageHelper extends DragonHelper {
     //    private final Map<EnumDragonBreed, AtomicInteger> breedPoints = new EnumMap<>(EnumDragonBreed.class);
     private int ticksSinceCreationServer;
 
-    public DragonLifeStageHelper(EntityTameableDragon dragon, DataParameter<Integer> dataParam) {
+    public DragonLifeStageHelper(EntityTameableDragon dragon) {
         super(dragon);
 
-        this.dataParam = dataParam;
-        dataWatcher.register(dataParam, ticksSinceCreationServer);
+        dataWatcher.register(DATA_TICKS_SINCE_CREATION, ticksSinceCreationServer);
 
         if (dragon.isClient()) {
             ticksSinceCreationClient = new ClientServerSynchronisedTickCount(TICKS_SINCE_CREATION_UPDATE_INTERVAL);
@@ -160,7 +160,7 @@ public class DragonLifeStageHelper extends DragonHelper {
         L.trace("setLifeStage({})", lifeStage);
         if (dragon.isServer()) {
             ticksSinceCreationServer = lifeStage.getStartTickCount();
-            dataWatcher.set(dataParam, ticksSinceCreationServer);
+            dataWatcher.set(DATA_TICKS_SINCE_CREATION, ticksSinceCreationServer);
         } else {
             L.error("setLifeStage called on Client");
         }
@@ -193,7 +193,7 @@ public class DragonLifeStageHelper extends DragonHelper {
         int ticksRead = nbt.getInteger(NBT_TICKS_SINCE_CREATION);
         ticksRead = DragonLifeStage.clipTickCountToValid(ticksRead);
         ticksSinceCreationServer = ticksRead;
-        dataWatcher.set(dataParam, ticksSinceCreationServer);
+        dataWatcher.set(DATA_TICKS_SINCE_CREATION, ticksSinceCreationServer);
     }
 
     /**
@@ -261,10 +261,10 @@ public class DragonLifeStageHelper extends DragonHelper {
             if (!isFullyGrown() && !dragon.isGrowthPaused()) {
                 ticksSinceCreationServer++;
                 if (ticksSinceCreationServer % TICKS_SINCE_CREATION_UPDATE_INTERVAL == 0)
-                    dataWatcher.set(dataParam, ticksSinceCreationServer);
+                    dataWatcher.set(DATA_TICKS_SINCE_CREATION, ticksSinceCreationServer);
             }
         } else {
-            ticksSinceCreationClient.updateFromServer(dataWatcher.get(dataParam));
+            ticksSinceCreationClient.updateFromServer(dataWatcher.get(DATA_TICKS_SINCE_CREATION));
             if (!isFullyGrown()) ticksSinceCreationClient.tick();
         }
 

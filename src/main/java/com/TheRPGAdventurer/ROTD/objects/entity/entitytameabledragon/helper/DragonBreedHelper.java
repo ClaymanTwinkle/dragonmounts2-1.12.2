@@ -20,6 +20,8 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
@@ -51,14 +53,12 @@ public class DragonBreedHelper extends DragonHelper {
     private static final String NBT_BREED = "Breed";
     private static final String NBT_BREED_POINTS = "breedPoints";
 
-    private final DataParameter<String> DATA_BREED;
+    private static final DataParameter<String> DATA_BREED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
     private final Map<EnumDragonBreed, AtomicInteger> breedPoints = new EnumMap<>(EnumDragonBreed.class);
 
-    public DragonBreedHelper(EntityTameableDragon dragon,
-                             DataParameter<String> DATA_BREED) {
+    public DragonBreedHelper(EntityTameableDragon dragon) {
         super(dragon);
 
-        this.DATA_BREED = DATA_BREED;
 
         if (dragon.isServer()) {
             // initialize map to avoid future checkings
@@ -211,7 +211,10 @@ public class DragonBreedHelper extends DragonHelper {
 
     @Override
     public void applyEntityAttributes() {
-        getBreedHealth();
+        // Get's the health of the dragon per breed, doubles
+        // when it turns into an adult
+        IAttributeInstance health = dragon.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+        health.setBaseValue(getBreedType().getBreed().getBreedHealth());
     }
 
     @Override
@@ -222,15 +225,6 @@ public class DragonBreedHelper extends DragonHelper {
     public void inheritBreed(EntityTameableDragon parent1, EntityTameableDragon parent2) {
         breedPoints.get(parent1.getBreedType()).addAndGet(POINTS_INHERIT + rand.nextInt(POINTS_INHERIT));
         breedPoints.get(parent2.getBreedType()).addAndGet(POINTS_INHERIT + rand.nextInt(POINTS_INHERIT));
-    }
-
-    /**
-     * Get's the health of the dragon per breed, doubles
-     * when it turns into an adult
-     */
-    public void getBreedHealth() {
-        IAttributeInstance health = dragon.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
-        health.setBaseValue(getBreedType().getBreed().getBreedHealth());
     }
 
     public ItemDragonEssence getDragonEssence() {

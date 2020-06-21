@@ -16,6 +16,8 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,19 +35,14 @@ public class DragonReproductionHelper extends DragonHelper {
     public static final String NBT_BREEDER_OLD = "HatchedBy";
     public static final byte REPRO_LIMIT = 2;
     private static final Logger L = LogManager.getLogger();
-    private final DataParameter<Optional<UUID>> dataParamBreeder;
-    private final DataParameter<Integer> dataParamReproduced;
+    private static final DataParameter<Optional<UUID>> DATA_BREEDER = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.OPTIONAL_UNIQUE_ID);
+    private static final DataParameter<Integer> DATA_REPRO_COUNT = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.VARINT);
 
-    public DragonReproductionHelper(EntityTameableDragon dragon,
-                                    DataParameter<Optional<UUID>> dataParamBreeder,
-                                    DataParameter<Integer> dataIndexReproCount) {
+    public DragonReproductionHelper(EntityTameableDragon dragon) {
         super(dragon);
 
-        this.dataParamBreeder = dataParamBreeder;
-        this.dataParamReproduced = dataIndexReproCount;
-
-        dataWatcher.register(dataParamBreeder, Optional.absent());
-        dataWatcher.register(dataIndexReproCount, 0);
+        dataWatcher.register(DATA_BREEDER, Optional.absent());
+        dataWatcher.register(DATA_REPRO_COUNT, 0);
     }
 
     @Override
@@ -84,12 +81,12 @@ public class DragonReproductionHelper extends DragonHelper {
     }
 
     public int getReproCount() {
-        return dataWatcher.get(dataParamReproduced);
+        return dataWatcher.get(DATA_REPRO_COUNT);
     }
 
     public void setReproCount(int reproCount) {
         L.trace("setReproCount({})", reproCount);
-        dataWatcher.set(dataParamReproduced, reproCount);
+        dataWatcher.set(DATA_REPRO_COUNT, reproCount);
     }
 
     public void addReproduced() {
@@ -101,12 +98,12 @@ public class DragonReproductionHelper extends DragonHelper {
     }
 
     public Optional<UUID> getBreederID() {
-        return dataWatcher.get(dataParamBreeder);
+        return dataWatcher.get(DATA_BREEDER);
     }
 
     public void setBreederID(UUID breederID) {
         L.trace("setBreederUUID({})", breederID);
-        dataWatcher.set(dataParamBreeder, Optional.fromNullable(breederID));
+        dataWatcher.set(DATA_BREEDER, Optional.fromNullable(breederID));
     }
 
     public EntityPlayer getBreeder() {
