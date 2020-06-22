@@ -43,7 +43,7 @@ public class EntityAIDragonMate extends EntityAIDragonBase {
             return false;
         } else {
             dragonMate = getNearbyMate();
-            return dragonMate != null && (dragon.isMale() && !dragonMate.isMale() || !dragon.isMale() && dragonMate.isMale()) && !dragonMate.isInLove();
+            return dragonMate != null && !dragon.isSitting() && ((dragon.isMale() && !dragonMate.isMale()) || (!dragon.isMale() && dragonMate.isMale())) && dragonMate.isInLove();
         }
     }
 
@@ -52,7 +52,7 @@ public class EntityAIDragonMate extends EntityAIDragonBase {
      */
     @Override
     public boolean shouldContinueExecuting() {
-        return dragonMate.isEntityAlive() && dragonMate.isInLove() && spawnBabyDelay < 60;
+        return  dragonMate.isEntityAlive() && dragonMate.isInLove() && spawnBabyDelay < 60;
     }
 
     /**
@@ -93,13 +93,20 @@ public class EntityAIDragonMate extends EntityAIDragonBase {
                 dragon.getEntityBoundingBox().grow(followRange, followRange, followRange)
         );
 
+        float minDistance = Float.MAX_VALUE;
+        EntityTameableDragon result = null;
+
         for (EntityTameableDragon nearbyDragon : nearbyDragons) {
             if (dragon.canMateWith(nearbyDragon)) {
-                return nearbyDragon;
+                float distance = dragon.getDistance(nearbyDragon);
+                if (distance < minDistance) {
+                    result = nearbyDragon;
+                    minDistance = distance;
+                }
             }
         }
 
-        return null;
+        return result;
     }
 
     /**
