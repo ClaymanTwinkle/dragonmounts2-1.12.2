@@ -28,12 +28,12 @@ import java.util.UUID;
  */
 public class DragonMateHelper extends DragonHelper {
 
-    public static final String NBT_BREEDER = "HatchedByUUID";
-    public static final String NBT_REPRO_COUNT = "ReproductionCount";
+    private static final String NBT_BREEDER = "HatchedByUUID";
+    private static final String NBT_REPRO_COUNT = "ReproductionCount";
     // old NBT keys
-    public static final String NBT_REPRODUCED = "HasReproduced";
-    public static final String NBT_BREEDER_OLD = "HatchedBy";
-    public static final byte REPRO_LIMIT = 2;
+    private static final String NBT_REPRODUCED = "HasReproduced";
+    private static final String NBT_BREEDER_OLD = "HatchedBy";
+    private static final byte REPRO_LIMIT = 2;
     private static final Logger L = LogManager.getLogger();
     private static final DataParameter<Optional<UUID>> DATA_BREEDER = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.OPTIONAL_UNIQUE_ID);
     private static final DataParameter<Integer> DATA_REPRO_COUNT = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.VARINT);

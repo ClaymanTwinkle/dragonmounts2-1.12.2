@@ -9,6 +9,7 @@ import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.common.BiomeDictionary;
@@ -65,11 +66,11 @@ public class DragonBreedForest extends DragonBreed {
 
 
         if (isSavanna) {
-            dragon.setForestType(EntityTameableDragon.EnumForestType.DRY.getName());
+            dragon.setForestType(EnumForestType.DRY.getName());
         } else if (isTaiga) {
-            dragon.setForestType(EntityTameableDragon.EnumForestType.TAIGA.getName());
+            dragon.setForestType(EnumForestType.TAIGA.getName());
         } else {
-            dragon.setForestType(EntityTameableDragon.EnumForestType.FOREST.getName());
+            dragon.setForestType(EnumForestType.FOREST.getName());
         }
     }
 
@@ -91,6 +92,15 @@ public class DragonBreedForest extends DragonBreed {
     @Override
     public ResourceLocation getLootTable(EntityTameableDragon dragon) {
         return DragonMountsLootTables.ENTITIES_DRAGON_FOREST;
+    }
+
+    public enum EnumForestType implements IStringSerializable {
+        FOREST, TAIGA, DRY;
+
+        @Override
+        public String getName() {
+            return name().toLowerCase();
+        }
     }
 }
 	

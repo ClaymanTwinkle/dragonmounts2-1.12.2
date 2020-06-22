@@ -101,23 +101,20 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     private static final Logger L = LogManager.getLogger();
 
     // data value IDs
-    private static final DataParameter<Boolean> DATA_FLYING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> GROWTH_PAUSED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
+
+    private static final DataParameter<Boolean> DATA_FLYING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> GOING_DOWN = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-
-    private static final DataParameter<Boolean> ALLOW_OTHERPLAYERS = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> BOOSTING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> IS_MALE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-
     private static final DataParameter<Boolean> HOVER_CANCELLED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> Y_LOCKED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> ALT_TEXTURE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> FOLLOW_YAW = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
 
+    private static final DataParameter<Boolean> ALT_TEXTURE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
 
     private static final DataParameter<ItemStack> WHISTLE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.ITEM_STACK);
 
-    private static int ticksShear;
+    private int ticksShear;
     // server/client delegates
     private final Map<Class, DragonHelper> helpers = new HashMap<>();
     // client-only delegates
@@ -179,10 +176,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         dataManager.register(Y_LOCKED, false);
         dataManager.register(HOVER_CANCELLED, false);
         dataManager.register(ALT_TEXTURE, false);
-        dataManager.register(ALLOW_OTHERPLAYERS, false);
         dataManager.register(BOOSTING, false);
-        dataManager.register(IS_MALE, getRNG().nextBoolean());
-
 
         dataManager.register(WHISTLE, ItemStack.EMPTY);
         dataManager.register(FOLLOW_YAW, true);
@@ -211,14 +205,12 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     public void writeEntityToNBT(NBTTagCompound nbt) {
         super.writeEntityToNBT(nbt);
 
-        nbt.setBoolean("IsMale", this.isMale());
         nbt.setBoolean("unhovered", this.isUnHovered());
         nbt.setBoolean("followyaw", this.followYaw());
         nbt.setInteger("AgeTicks", this.getLifeStageHelper().getTicksSinceCreation());
         nbt.setBoolean("boosting", this.boosting());
         nbt.setBoolean("ylocked", this.isYLocked());
         nbt.setBoolean("growthpause", this.isGrowthPaused());
-        nbt.setBoolean("AllowOtherPlayers", this.allowedOtherPlayers());
         helpers.values().forEach(helper -> helper.writeToNBT(nbt));
     }
 
@@ -232,13 +224,10 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         this.setGrowthPaused(nbt.getBoolean("growthpause"));
         this.getLifeStageHelper().setTicksSinceCreation(nbt.getInteger("AgeTicks"));
 
-        this.setMale(nbt.getBoolean("IsMale"));
         this.setUnHovered(nbt.getBoolean("unhovered"));
         this.setYLocked(nbt.getBoolean("ylocked"));
         this.setFollowYaw(nbt.getBoolean("followyaw"));
         this.setBoosting(nbt.getBoolean("boosting"));
-        //        this.setSleeping(nbt.getBoolean("sleeping")); //unused as of now
-        this.setToAllowedOtherPlayers(nbt.getBoolean("AllowOtherPlayers"));
         helpers.values().forEach(helper -> helper.readFromNBT(nbt));
     }
 
@@ -322,24 +311,16 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         getInventoryHelper().setBanner4(bannered);
     }
 
-    // public boolean isSleeping() {
-    //  return dataManager.get(SLEEP);
-    // }
-
-    // public void setSleeping(boolean sleeping) {
-    //   dataManager.set(SLEEP, sleeping);
-    // }
-
     /**
      * Gets the gender since booleans return only 2 values (true or false) true == MALE, false == FEMALE
      * 2 genders only dont call me sexist and dont talk to me about political correctness
      */
     public boolean isMale() {
-        return dataManager.get(IS_MALE);
+        return getBreedHelper().isMale();
     }
 
     public void setMale(boolean male) {
-        dataManager.set(IS_MALE, male);
+        getBreedHelper().setMale(male);
     }
 
     /**
@@ -463,11 +444,11 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
 
     public boolean allowedOtherPlayers() {
-        return this.dataManager.get(ALLOW_OTHERPLAYERS);
+        return getInventoryHelper().allowedOtherPlayers();
     }
 
     public void setToAllowedOtherPlayers(boolean allow) {
-        dataManager.set(ALLOW_OTHERPLAYERS, allow);
+        getInventoryHelper().setToAllowedOtherPlayers(allow);
     }
 
     public boolean isYLocked() {
@@ -1144,18 +1125,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     @Override
     public float getRenderSizeModifier() {
         return getScale() / (isChild() ? 0.5F : 1.0F);
-//  0.5 isChild() correction is required due to the code in Render::renderShadow which shrinks the shadow for a child
-//    if (entityIn instanceof EntityLiving)
-//    {
-//      EntityLiving entityliving = (EntityLiving)entityIn;
-//      f *= entityliving.getRenderSizeModifier();
-//
-//      if (entityliving.isChild())
-//      {
-//        f *= 0.5F;
-//      }
-//    }
-
     }
 
     /**
@@ -1373,7 +1342,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         EntityTameableDragon parent2 = (EntityTameableDragon) mate;
 
         if (parent1.isMale() && !parent2.isMale() || !parent1.isMale() && parent2.isMale()) {
-            return getMateHelper().createChild(parent1.isMale() ? mate : parent1);
+            return getMateHelper().createChild(parent1.isMale() ? parent2 : parent1);
         } else {
             return null;
         }
@@ -2030,30 +1999,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * Credits: AlexThe 666 Ice and Fire
      */
     public int getIntFromArmor(ItemStack stack) {
-        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_iron) {
-            return 1;
-        }
-        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_gold) {
-            return 2;
-        }
-        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_diamond) {
-            return 3;
-        }
-
-        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_emerald) {
-            return 4;
-        }
-
-        return 0;
-    }
-
-    public enum EnumForestType implements IStringSerializable {
-        FOREST, TAIGA, DRY;
-
-        @Override
-        public String getName() {
-            return name().toLowerCase();
-        }
+        return getInventoryHelper().getIntFromArmor(stack);
     }
 }
 

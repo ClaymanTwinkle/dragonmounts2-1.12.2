@@ -43,6 +43,9 @@ public class DragonInventoryHelper extends DragonHelper {
     private static final DataParameter<ItemStack> BANNER3 = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.ITEM_STACK);
     private static final DataParameter<ItemStack> BANNER4 = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.ITEM_STACK);
 
+    // 是否允许其他玩家打开面板
+    private static final DataParameter<Boolean> ALLOW_OTHERPLAYERS = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
+
     private DragonInventory dragonInv;
     private boolean hasChestVarChanged = false;
 
@@ -57,6 +60,8 @@ public class DragonInventoryHelper extends DragonHelper {
         dataWatcher.register(BANNER3, ItemStack.EMPTY);
         dataWatcher.register(BANNER4, ItemStack.EMPTY);
 
+        dataWatcher.register(ALLOW_OTHERPLAYERS, false);
+
         InitializeDragonInventory();
     }
 
@@ -67,7 +72,7 @@ public class DragonInventoryHelper extends DragonHelper {
         nbt.setBoolean("Saddle", isSaddled());
         nbt.setBoolean("Chested", this.isChested());
         nbt.setInteger("Armor", this.getArmor());
-
+        nbt.setBoolean("AllowOtherPlayers", this.allowedOtherPlayers());
         writeDragonInventory(nbt);
     }
 
@@ -77,7 +82,7 @@ public class DragonInventoryHelper extends DragonHelper {
         this.setSaddled(nbt.getBoolean("Saddle"));
         this.setChested(nbt.getBoolean("Chested"));
         this.setArmor(nbt.getInteger("Armor"));
-
+        this.setToAllowedOtherPlayers(nbt.getBoolean("AllowOtherPlayers"));
         readDragonInventory(nbt);
     }
 
@@ -136,19 +141,19 @@ public class DragonInventoryHelper extends DragonHelper {
                 ItemStack banner3 = this.dragonInv.getStackInSlot(33);
                 ItemStack banner4 = this.dragonInv.getStackInSlot(34);
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle != null && saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, chest_left != null && chest_left.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !chest_left.isEmpty() ? 1 : 0));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, chest_left.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !chest_left.isEmpty() ? 1 : 0));
 
                 DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, dragon.getIntFromArmor(dragonInv.getStackInSlot(2))));
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1 != null && banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2 != null && banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 33, banner3 != null && banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 33, banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 34, banner4 != null && banner4.getItem() == Items.BANNER && !banner4.isEmpty() ? 1 : 0));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 34, banner4.getItem() == Items.BANNER && !banner4.isEmpty() ? 1 : 0));
 
             }
         }
@@ -183,19 +188,19 @@ public class DragonInventoryHelper extends DragonHelper {
                 ItemStack banner4 = dragonInv.getStackInSlot(34);
 
                 if (dragon.world.isRemote) {
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle != null && saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
 
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, chest != null && chest.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !chest.isEmpty() ? 1 : 0));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, chest.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !chest.isEmpty() ? 1 : 0));
 
                     DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, dragon.getIntFromArmor(dragonInv.getStackInSlot(2))));
 
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1 != null && banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
 
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2 != null && banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
 
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 33, banner3 != null && banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 33, banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
 
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 34, banner4 != null && banner4.getItem() == Items.BANNER && !banner4.isEmpty() ? 1 : 0));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 34, banner4.getItem() == Items.BANNER && !banner4.isEmpty() ? 1 : 0));
                 }
             }
         }
@@ -218,7 +223,7 @@ public class DragonInventoryHelper extends DragonHelper {
             }
             nbt.setTag("Items", nbttaglist);
         }
-        if (dragon.getCustomNameTag() != null && !dragon.getCustomNameTag().isEmpty()) {
+        if (!dragon.getCustomNameTag().isEmpty()) {
             nbt.setString("CustomName", dragon.getCustomNameTag());
         }
     }
@@ -234,12 +239,11 @@ public class DragonInventoryHelper extends DragonHelper {
         int armor = dragon.getIntFromArmor(dragonInv.getStackInSlot(2));
         int armor1 = dragon.getIntFromArmor(dragonInv.getStackInSlot(2));
 
-        if (saddle != null && saddle.getItem() == Items.SADDLE && !saddle.isEmpty() && !isSaddled() && dragon.isOldEnoughToBreathe()) {
+        if (saddle.getItem() == Items.SADDLE && !saddle.isEmpty() && !isSaddled() && dragon.isOldEnoughToBreathe()) {
             this.setSaddled(true);
             dragon.world.playSound(dragon.posX, dragon.posY, dragon.posZ, SoundEvents.ENTITY_HORSE_SADDLE, SoundCategory.PLAYERS, 1F, 1.0F, false);
         }
-        if (leftChestforInv != null && leftChestforInv.getItem() == Item.getItemFromBlock(Blocks.CHEST) &&
-                !leftChestforInv.isEmpty() && !isChested() && dragon.isOldEnoughToBreathe()) {
+        if (leftChestforInv.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !leftChestforInv.isEmpty() && !isChested() && dragon.isOldEnoughToBreathe()) {
             this.setChested(true);
             dragon.world.playSound(dragon.posX, dragon.posY, dragon.posZ, SoundEvents.BLOCK_WOOD_PLACE, SoundCategory.PLAYERS, 1F, 1F, false);
         }
@@ -255,18 +259,39 @@ public class DragonInventoryHelper extends DragonHelper {
         this.setBanner4(banner4);
 
         if (dragon.isServer()) {
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle != null && saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, leftChestforInv != null && leftChestforInv.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !leftChestforInv.isEmpty() ? 1 : 0));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, leftChestforInv.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !leftChestforInv.isEmpty() ? 1 : 0));
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, dragon.getIntFromArmor(this.dragonInv.getStackInSlot(2))));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1 != null && banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2 != null && banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner3 != null && banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner4 != null && banner4.getItem() == Items.BANNER && !banner4.isEmpty() ? 1 : 0));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner4.getItem() == Items.BANNER && !banner4.isEmpty() ? 1 : 0));
         }
     }
 
     public DragonInventory getDragonInv() {
         return dragonInv;
+    }
+
+    /**
+     * Credits: AlexThe 666 Ice and Fire
+     */
+    public int getIntFromArmor(ItemStack stack) {
+        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_iron) {
+            return 1;
+        }
+        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_gold) {
+            return 2;
+        }
+        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_diamond) {
+            return 3;
+        }
+
+        if (!stack.isEmpty() && stack.getItem() == ModArmour.dragonarmor_emerald) {
+            return 4;
+        }
+
+        return 0;
     }
 
     /**
@@ -339,13 +364,20 @@ public class DragonInventoryHelper extends DragonHelper {
         dataWatcher.set(BANNER4, male);
     }
 
+    public boolean allowedOtherPlayers() {
+        return this.dataWatcher.get(ALLOW_OTHERPLAYERS);
+    }
+
+    public void setToAllowedOtherPlayers(boolean allow) {
+        dataWatcher.set(ALLOW_OTHERPLAYERS, allow);
+    }
 
     /**
      * Credits: AlexThe 666 Ice and Fire
      */
     public static class DragonInventory extends ContainerHorseChest {
 
-        public DragonInventory(String inventoryTitle, int slotCount, DragonInventoryHelper helper) {
+        DragonInventory(String inventoryTitle, int slotCount, DragonInventoryHelper helper) {
             super(inventoryTitle, slotCount);
             this.addInventoryChangeListener(new DragonInventoryListener(helper));
         }

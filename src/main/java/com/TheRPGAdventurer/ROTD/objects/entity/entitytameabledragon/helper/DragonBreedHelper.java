@@ -54,12 +54,15 @@ public class DragonBreedHelper extends DragonHelper {
     private static final String NBT_BREED_POINTS = "breedPoints";
 
     private static final DataParameter<String> DATA_BREED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
+    private static final DataParameter<Boolean> IS_MALE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<String> FOREST_TEXTURES = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
+
     private final Map<EnumDragonBreed, AtomicInteger> breedPoints = new EnumMap<>(EnumDragonBreed.class);
 
     public DragonBreedHelper(EntityTameableDragon dragon) {
         super(dragon);
 
+        dataWatcher.register(IS_MALE, dragon.getRNG().nextBoolean());
         dataWatcher.register(DATA_BREED, EnumDragonBreed.END.getName());
         dataWatcher.register(FOREST_TEXTURES, "");
         if (dragon.isServer()) {
@@ -76,7 +79,7 @@ public class DragonBreedHelper extends DragonHelper {
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         nbt.setString(NBT_BREED, getBreedType().getName());
-
+        nbt.setBoolean("IsMale", this.isMale());
         NBTTagCompound breedPointTag = new NBTTagCompound();
         breedPoints.forEach((type, points) -> {
             breedPointTag.setInteger(type.getName(), points.get());
@@ -95,7 +98,7 @@ public class DragonBreedHelper extends DragonHelper {
                     dragon.getEntityId(), breedName, breed);
         }
         setBreedType(breed);
-
+        this.setMale(nbt.getBoolean("IsMale"));
         // read breed points
         NBTTagCompound breedPointTag = nbt.getCompoundTag(NBT_BREED_POINTS);
         breedPoints.forEach((type, points) -> points.set(breedPointTag.getInteger(type.getName())));
@@ -251,5 +254,12 @@ public class DragonBreedHelper extends DragonHelper {
         dataWatcher.set(FOREST_TEXTURES, forest);
     }
 
+    public boolean isMale() {
+        return dataWatcher.get(IS_MALE);
+    }
+
+    public void setMale(boolean male) {
+        dataWatcher.set(IS_MALE, male);
+    }
 
 }
