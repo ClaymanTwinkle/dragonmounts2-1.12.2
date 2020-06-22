@@ -11,29 +11,26 @@ public class MessageDragonBreath implements IMessage {
 
 	public int dragonId;
 	public boolean isBreathing;
-//	public boolean isProjectile;
 
 	public MessageDragonBreath(int dragonId, boolean isBreathing) {
 		this.dragonId = dragonId;
 		this.isBreathing = isBreathing;
-//		this.isProjectile=isProjectile;
 	}
 
 	public MessageDragonBreath() {
+
 	}
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
 		dragonId = buf.readInt();
 		isBreathing = buf.readBoolean();
-//		isProjectile = buf.readBoolean();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
 		buf.writeInt(dragonId);
 		buf.writeBoolean(isBreathing);
-//		buf.writeBoolean(isProjectile);
 	}
 
 	public static class MessageDragonBreathHandler implements IMessageHandler<MessageDragonBreath, IMessage> {
@@ -42,17 +39,7 @@ public class MessageDragonBreath implements IMessage {
 			Entity entity = ctx.getServerHandler().player.world.getEntityByID(message.dragonId);
 			if (entity instanceof EntityTameableDragon) {
 				EntityTameableDragon dragon = (EntityTameableDragon) entity;
-				if (message.isBreathing) {
-					dragon.setUsingBreathWeapon(true);
-				} else {
-					dragon.setUsingBreathWeapon(false);
-				}
-
-//			if(message.isProjectile) {
-//				dragon.setUsingProjectile(true);
-//			} else {
-//				dragon.setUsingProjectile(false);
-//			}
+				dragon.setUsingBreathWeapon(message.isBreathing);
 			}
 			return null;
 		}
@@ -60,27 +47,3 @@ public class MessageDragonBreath implements IMessage {
 }
 
 //	@Override
-//	@SideOnly(Side.CLIENT)
-//	public void onClientReceived(Minecraft client, MessageDragonBreath message, EntityPlayer player, MessageContext messageContext) {
-//
-//	}
-//
-//	@Override
-//	public void onServerReceived(MinecraftServer server, MessageDragonBreath message, EntityPlayer player, MessageContext messageContext) {
-//		Entity entity = player.world.getEntityByID(message.dragonId);
-//		if (entity instanceof EntityTameableDragon) {
-//			EntityTameableDragon dragon = (EntityTameableDragon) entity;
-//			if (message.isBreathing) {
-//				dragon.setUsingBreathWeapon(true);
-//			} else {
-//				dragon.setUsingBreathWeapon(false);
-//			}
-//
-////			if(message.isProjectile) {
-////				dragon.setUsingProjectile(true);
-////			} else {
-////				dragon.setUsingProjectile(false);
-////			}
-//		}
-//	}
-//}

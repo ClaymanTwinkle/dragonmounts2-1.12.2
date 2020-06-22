@@ -9,12 +9,14 @@
  */
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper;
 
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.EnumHand;
 
+import javax.annotation.Nullable;
 import java.util.Random;
-
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 
 /**
  *
@@ -37,6 +39,9 @@ public abstract class DragonHelper {
     public void applyEntityAttributes() {}
     public void onLivingUpdate() {}
     public void onUpdate() {}
+    public boolean processInteract(EntityPlayer player, @Nullable EnumHand hand) {
+        return false;
+    }
     public void onDeathUpdate() {}
     public void onDeath() {}
 }

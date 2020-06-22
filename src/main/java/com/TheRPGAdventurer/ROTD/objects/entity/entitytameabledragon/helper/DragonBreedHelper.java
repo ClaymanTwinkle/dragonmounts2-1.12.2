@@ -54,12 +54,14 @@ public class DragonBreedHelper extends DragonHelper {
     private static final String NBT_BREED_POINTS = "breedPoints";
 
     private static final DataParameter<String> DATA_BREED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
+    private static final DataParameter<String> FOREST_TEXTURES = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
     private final Map<EnumDragonBreed, AtomicInteger> breedPoints = new EnumMap<>(EnumDragonBreed.class);
 
     public DragonBreedHelper(EntityTameableDragon dragon) {
         super(dragon);
 
-
+        dataWatcher.register(DATA_BREED, EnumDragonBreed.END.getName());
+        dataWatcher.register(FOREST_TEXTURES, "");
         if (dragon.isServer()) {
             // initialize map to avoid future checkings
             for (EnumDragonBreed type : EnumDragonBreed.values()) {
@@ -69,8 +71,6 @@ public class DragonBreedHelper extends DragonHelper {
             // default breed has initial points
             breedPoints.get(EnumDragonBreed.FIRE).set(POINTS_INITIAL);
         }
-
-        dataWatcher.register(DATA_BREED, EnumDragonBreed.END.getName());
     }
 
     @Override
@@ -242,4 +242,14 @@ public class DragonBreedHelper extends DragonHelper {
     public ResourceLocation getLootTable() {
         return getBreedType().getBreed().getLootTable(dragon);
     }
+
+    public String getForestType() {
+        return dataWatcher.get(FOREST_TEXTURES);
+    }
+
+    public void setForestType(String forest) {
+        dataWatcher.set(FOREST_TEXTURES, forest);
+    }
+
+
 }

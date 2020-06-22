@@ -9,6 +9,7 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weap
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -44,32 +45,36 @@ import org.apache.logging.log4j.Logger;
  * the dragon during breath weapon (eg jaw opening)
  */
 public class DragonBreathHelper extends DragonHelper {
-    private static final DataParameter<String> DATA_BREATH_WEAPON_TARGET = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.STRING);
-    private static final DataParameter<Integer> DATA_BREATH_WEAPON_MODE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.VARINT);
 
-    private final int BREATH_START_DURATION=5; // ticks
-    private final int BREATH_STOP_DURATION=5; // ticks
+    private static final Logger L=LogManager.getLogger();
+
+    private static final int BREATH_START_DURATION=5; // ticks
+    private static final int BREATH_STOP_DURATION=5; // ticks
+
+    private static final DataParameter<Boolean> DATA_BREATHING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
+    private boolean isUsingBreathWeapon;
+
     private BreathState currentBreathState=BreathState.IDLE;
     private int transitionStartTick;
     private int tickCounter=0;
-    protected BreathWeaponEmitter breathWeaponEmitter=null;
-    public BreathAffectedArea breathAffectedArea;
-    public BreathAffectedArea breathAffectedAreaEnder=null;
-    public BreathAffectedArea breathAffectedAreaNether=null;
-    public BreathAffectedArea breathAffectedAreaIce=null;
-    public BreathAffectedArea breathAffectedAreaHydro=null;
-    public BreathAffectedArea breathAffectedAreaWither=null;
-    public BreathAffectedArea breathAffectedAreaPoison=null;
-    public BreathAffectedArea breathAffectedAreaAether=null;
-    private static final Logger L=LogManager.getLogger();
+    private BreathWeaponEmitter breathWeaponEmitter=null;
+    private BreathAffectedArea breathAffectedArea;
+    private BreathAffectedArea breathAffectedAreaEnder;
+    private BreathAffectedArea breathAffectedAreaNether;
+    private BreathAffectedArea breathAffectedAreaIce;
+    private BreathAffectedArea breathAffectedAreaHydro;
+    private BreathAffectedArea breathAffectedAreaWither;
+    private BreathAffectedArea breathAffectedAreaPoison;
+    private BreathAffectedArea breathAffectedAreaAether;
 
     public DragonBreathHelper(EntityTameableDragon dragon) {
         super(dragon);
+
+        dataWatcher.register(DATA_BREATHING, false);
+
         if (dragon.isClient()) {
             breathWeaponEmitter=new BreathWeaponEmitter();
         }
-        dataWatcher.register(DATA_BREATH_WEAPON_TARGET, "");  //already registered by caller
-        dataWatcher.register(DATA_BREATH_WEAPON_MODE, 0);
 
         breathAffectedArea=new BreathAffectedArea(new BreathWeapon(dragon));
         breathAffectedAreaNether=new BreathAffectedArea(new BreathWeaponNether(dragon));
@@ -111,6 +116,18 @@ public class DragonBreathHelper extends DragonHelper {
     }
 
     @Override
+    public void writeToNBT(NBTTagCompound nbt) {
+        super.writeToNBT(nbt);
+        nbt.setBoolean("Breathing", this.isUsingBreathWeapon());
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt) {
+        super.readFromNBT(nbt);
+        this.setUsingBreathWeapon(nbt.getBoolean("Breathing"));
+    }
+
+    @Override
     public void onLivingUpdate() {
         ++tickCounter;
         if (dragon!=null) {
@@ -119,34 +136,31 @@ public class DragonBreathHelper extends DragonHelper {
             } else {
                 onLivingUpdateServer();
             }
-
-            if(dragon.isUsingAltBreathWeapon()) {
-            }
         }
     }
 
     private void onLivingUpdateServer() {
-        updateBreathState(dragon.isUsingBreathWeapon());
+        updateBreathState(isUsingBreathWeapon());
 
-        if (dragon.isUsingBreathWeapon()) {
+        if (isUsingBreathWeapon()) {
             Vec3d origin=dragon.getAnimator().getThroatPosition();
             Vec3d lookDirection=dragon.getLook(1.0f);
             Vec3d endOfLook=origin.add(lookDirection.x, lookDirection.y, lookDirection.z);
             BreathNode.Power power=dragon.getLifeStageHelper().getBreathPower();
-            if (endOfLook!=null && currentBreathState==BreathState.SUSTAIN) {
+            if (currentBreathState == BreathState.SUSTAIN) {
                 dragon.getBreed().continueAndUpdateBreathing(dragon.getEntityWorld(), origin, endOfLook, power, dragon);
             }
         }
     }
 
     private void onLivingUpdateClient() {
-        updateBreathState(dragon.isUsingBreathWeapon());
+        updateBreathState(isUsingBreathWeapon());
 
-        if (dragon.isUsingBreathWeapon()) {
+        if (isUsingBreathWeapon()) {
             Vec3d origin=dragon.getAnimator().getThroatPosition();
             Vec3d lookDirection=dragon.getLook(1.0f);
             Vec3d endOfLook=origin.add(lookDirection.x, lookDirection.y, lookDirection.z);
-            if (endOfLook!=null && currentBreathState==BreathState.SUSTAIN && dragon.getBreed().canUseBreathWeapon()) {
+            if (currentBreathState == BreathState.SUSTAIN && dragon.getBreed().canUseBreathWeapon()) {
                 BreathNode.Power power=dragon.getLifeStageHelper().getBreathPower();
                 dragon.getBreed().spawnBreathParticles(dragon.getEntityWorld(), power, tickCounter, origin, endOfLook, dragon);
             }
@@ -161,7 +175,7 @@ public class DragonBreathHelper extends DragonHelper {
     private void updateBreathState(boolean isBreathing) {
         switch (currentBreathState) {
             case IDLE: {
-                if (isBreathing==true) {
+                if (isBreathing) {
                     transitionStartTick=tickCounter;
                     currentBreathState=BreathState.STARTING;
                 }
@@ -171,12 +185,12 @@ public class DragonBreathHelper extends DragonHelper {
                 int ticksSpentStarting=tickCounter - transitionStartTick;
                 if (ticksSpentStarting >= BREATH_START_DURATION) {
                     transitionStartTick=tickCounter;
-                    currentBreathState=(isBreathing==true) ? BreathState.SUSTAIN : BreathState.STOPPING;
+                    currentBreathState=(isBreathing) ? BreathState.SUSTAIN : BreathState.STOPPING;
                 }
                 break;
             }
             case SUSTAIN: {
-                if (isBreathing==false) {
+                if (!isBreathing) {
                     transitionStartTick=tickCounter;
                     currentBreathState=BreathState.STOPPING;
                 }
@@ -191,7 +205,7 @@ public class DragonBreathHelper extends DragonHelper {
             }
             default: {
                 DragonMounts.loggerLimit.error_once("Unknown currentBreathState:" + currentBreathState);
-                return;
+                break;
             }
         }
     }
@@ -222,10 +236,10 @@ public class DragonBreathHelper extends DragonHelper {
             infoToUpdate.lifeStage=dragon.getLifeStageHelper().getLifeStage();
 
             boolean isUsingBreathweapon=false;
-            if (dragon.isUsingBreathWeapon()) {
+            if (isUsingBreathWeapon()) {
                 Vec3d lookDirection=dragon.getLook(1.0f);
                 Vec3d endOfLook=origin.add(lookDirection.x, lookDirection.y, lookDirection.z);
-                if (endOfLook!=null && currentBreathState==BreathState.SUSTAIN && dragon.getBreed().canUseBreathWeapon()) {
+                if (currentBreathState == BreathState.SUSTAIN && dragon.getBreed().canUseBreathWeapon()) {
                     isUsingBreathweapon=true;
                 }
             }
@@ -269,6 +283,28 @@ public class DragonBreathHelper extends DragonHelper {
 
     public BreathAffectedArea getbreathAffectedAreaAether() {
         return breathAffectedAreaAether;
+    }
+
+    /**
+     * Returns true if the entity is breathing.
+     */
+    public boolean isUsingBreathWeapon() {
+        if (dragon.isClient()) {
+            boolean usingBreathWeapon = this.dataWatcher.get(DATA_BREATHING);
+            this.isUsingBreathWeapon = usingBreathWeapon;
+            return usingBreathWeapon;
+        }
+        return isUsingBreathWeapon;
+    }
+
+    /**
+     * Set the breathing flag of the entity.
+     */
+    public void setUsingBreathWeapon(boolean usingBreathWeapon) {
+        this.dataWatcher.set(DATA_BREATHING, usingBreathWeapon);
+        if (dragon.isServer()) {
+            this.isUsingBreathWeapon = usingBreathWeapon;
+        }
     }
 
 }

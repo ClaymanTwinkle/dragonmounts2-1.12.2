@@ -8,6 +8,8 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTamea
 
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 /**
  * Created by TheRPGAdventurer based on ice and fire code5.
  */
@@ -19,7 +21,7 @@ public class LayerRendererDragonArmor extends LayerRendererDragon {
     }
     
     @Override
-    public void doRenderLayer(EntityTameableDragon dragon, float moveTime,
+    public void doRenderLayer(@Nonnull EntityTameableDragon dragon, float moveTime,
                               float moveSpeed, float partialTicks, float ticksExisted, float lookYaw,
                               float lookPitch, float scale) {
     	if (dragon.getArmor() != 0) {
