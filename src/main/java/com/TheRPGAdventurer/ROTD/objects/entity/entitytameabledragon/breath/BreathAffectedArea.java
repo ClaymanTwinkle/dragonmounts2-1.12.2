@@ -6,7 +6,6 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.node
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.nodes.BreathNodeP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.nodes.EntityBreathNodeP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weapons.BreathWeapon;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weapons.BreathWeaponP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.util.Pair;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -41,7 +40,6 @@ public class BreathAffectedArea {
   public BreathWeapon breathWeapon;
 
   private ArrayList<EntityBreathNodeP> entityBreathNodesP = new ArrayList<>();
-  private BreathWeaponP breathWeaponP;
   private DragonBreathMode dragonBreathMode;
 
 
@@ -49,10 +47,6 @@ public class BreathAffectedArea {
     breathWeapon = i_breathWeapon;
   }
 
-  public BreathAffectedArea(BreathWeaponP i_breathWeapon) {  // dummy to enable compilation
-    breathWeaponP = i_breathWeapon;
-    throw new UnsupportedOperationException();
-  }
 
   /**
    * Tell BreathAffectedArea that breathing is ongoing.  Call once per tick before updateTick()
@@ -119,14 +113,16 @@ public class BreathAffectedArea {
 
   /** updates the BreathAffectedArea, called once per tick
    */
+  @Deprecated
   public void updateTick(World world, DragonBreathMode new_dragonBreathMode) {
     if (!new_dragonBreathMode.equals(dragonBreathMode)) {
       dragonBreathMode = new_dragonBreathMode;
-      if (breathWeaponP.shouldResetOnBreathModeChange(dragonBreathMode)) {
-        entityBreathNodes.clear();
-        blocksAffectedByBeam.clear();
-        entitiesAffectedByBeam.clear();
-      }
+      // TODO
+//      if (breathWeaponP.shouldResetOnBreathModeChange(dragonBreathMode)) {
+//        entityBreathNodes.clear();
+//        blocksAffectedByBeam.clear();
+//        entitiesAffectedByBeam.clear();
+//      }
     }
 
     ArrayList<NodeLineSegment> segments = new ArrayList<>();

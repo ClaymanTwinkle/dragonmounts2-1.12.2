@@ -38,7 +38,7 @@ public class VanillaEggHandler {
 		entityDragon.setPosition(pos.getX() + 0.5, pos.getY() + 0.2, pos.getZ() + 0.5);
 		entityDragon.setBreedType(EnumDragonBreed.END);
 		entityDragon.getLifeStageHelper().setLifeStage(DragonLifeStage.EGG);
-		entityDragon.getReproductionHelper().setBreeder(evt.getEntityPlayer());
+		entityDragon.getMateHelper().setBreeder(evt.getEntityPlayer());
 	    	
 		world.spawnEntity(entityDragon);
 	}

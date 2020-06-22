@@ -14,7 +14,7 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTamea
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds.EnumDragonBreed;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonBreedHelper;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonLifeStageHelper;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonReproductionHelper;
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonMateHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -254,7 +254,7 @@ public class GuiDragonDebug extends Gui {
 
         
         // breeder name
-        DragonReproductionHelper reproduction = dragon.getReproductionHelper();
+        DragonMateHelper reproduction = dragon.getMateHelper();
         EntityPlayer breeder = reproduction.getBreeder();
         String breederName;
         if (breeder == null) {

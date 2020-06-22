@@ -21,7 +21,6 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitycarriage.EntityCarriage;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonSit;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.path.PathNavigateFlying;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.DragonBreathHelper;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.DragonBreathHelperP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds.DragonBreed;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds.EnumDragonBreed;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.*;
@@ -145,7 +144,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         // create entity delegates
         addHelper(new DragonBreedHelper(this));
         addHelper(new DragonLifeStageHelper(this));
-        addHelper(new DragonReproductionHelper(this));
+        addHelper(new DragonMateHelper(this));
         addHelper(new DragonBreathHelper(this));
         addHelper(new DragonHungerHelper(this));
         addHelper(new DragonLootHelper(this));
@@ -257,21 +256,21 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     }
 
     public DragonInventoryHelper.DragonInventory getDragonInv() {
-        return getSettingHelper().getDragonInv();
+        return getInventoryHelper().getDragonInv();
     }
 
     /**
      * Returns true if the dragon is saddled.
      */
     public boolean isSaddled() {
-        return getSettingHelper().isSaddled();
+        return getInventoryHelper().isSaddled();
     }
 
     /**
      * Set or remove the saddle of the
      */
     public void setSaddled(boolean saddled) {
-        getSettingHelper().setSaddled(saddled);
+        getInventoryHelper().setSaddled(saddled);
     }
 
     public boolean boosting() {
@@ -284,43 +283,43 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
     // used to be called isChestedLeft
     public boolean isChested() {
-        return getSettingHelper().isChested();
+        return getInventoryHelper().isChested();
     }
 
     public void setChested(boolean chested) {
-        getSettingHelper().setChested(chested);
+        getInventoryHelper().setChested(chested);
     }
 
     public ItemStack getBanner1() {
-        return getSettingHelper().getBanner1();
+        return getInventoryHelper().getBanner1();
     }
 
     public void setBanner1(ItemStack bannered) {
-        getSettingHelper().setBanner1(bannered);
+        getInventoryHelper().setBanner1(bannered);
     }
 
     public ItemStack getBanner2() {
-        return getSettingHelper().getBanner2();
+        return getInventoryHelper().getBanner2();
     }
 
     public void setBanner2(ItemStack bannered) {
-        getSettingHelper().setBanner2(bannered);
+        getInventoryHelper().setBanner2(bannered);
     }
 
     public ItemStack getBanner3() {
-        return getSettingHelper().getBanner3();
+        return getInventoryHelper().getBanner3();
     }
 
     public void setBanner3(ItemStack bannered) {
-        getSettingHelper().setBanner3(bannered);
+        getInventoryHelper().setBanner3(bannered);
     }
 
     public ItemStack getBanner4() {
-        return getSettingHelper().getBanner4();
+        return getInventoryHelper().getBanner4();
     }
 
     public void setBanner4(ItemStack bannered) {
-        getSettingHelper().setBanner4(bannered);
+        getInventoryHelper().setBanner4(bannered);
     }
 
     // public boolean isSleeping() {
@@ -356,11 +355,11 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * @return 0 no armor
      */
     public int getArmor() {
-        return this.getSettingHelper().getArmor();
+        return this.getInventoryHelper().getArmor();
     }
 
     public void setArmor(int armorType) {
-        this.getSettingHelper().setArmor(armorType);
+        this.getInventoryHelper().setArmor(armorType);
     }
 
     /**
@@ -1361,7 +1360,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      */
     @Override
     public boolean canMateWith(@Nonnull EntityAnimal mate) {
-        return getReproductionHelper().canMateWith(mate);
+        return getMateHelper().canMateWith(mate);
     }
 
     /**
@@ -1374,7 +1373,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         EntityTameableDragon parent2 = (EntityTameableDragon) mate;
 
         if (parent1.isMale() && !parent2.isMale() || !parent1.isMale() && parent2.isMale()) {
-            return getReproductionHelper().createChild(parent1.isMale() ? mate : parent1);
+            return getMateHelper().createChild(parent1.isMale() ? mate : parent1);
         } else {
             return null;
         }
@@ -1402,8 +1401,8 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         return getHelper(DragonLifeStageHelper.class);
     }
 
-    public DragonReproductionHelper getReproductionHelper() {
-        return getHelper(DragonReproductionHelper.class);
+    public DragonMateHelper getMateHelper() {
+        return getHelper(DragonMateHelper.class);
     }
 
     public DragonBreathHelper getBreathHelper() {
@@ -1414,13 +1413,8 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         return getHelper(DragonLootHelper.class);
     }
 
-    public DragonInventoryHelper getSettingHelper() {
+    public DragonInventoryHelper getInventoryHelper() {
         return getHelper(DragonInventoryHelper.class);
-    }
-
-    public DragonBreathHelperP getBreathHelperP() {  // enable compilation only
-        throw new UnsupportedOperationException();
-        //return getHelper(DragonBreathHelperP.class);
     }
 
     public DragonAnimator getAnimator() {

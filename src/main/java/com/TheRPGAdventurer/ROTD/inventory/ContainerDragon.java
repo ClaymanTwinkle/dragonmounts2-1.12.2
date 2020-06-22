@@ -47,7 +47,7 @@ public class ContainerDragon extends Container {
 
 			@Override
 			public void onSlotChanged() {
-				ContainerDragon.this.dragon.getSettingHelper().refreshInventory();
+				ContainerDragon.this.dragon.getInventoryHelper().refreshInventory();
 			}
 
 			@SideOnly(Side.CLIENT)

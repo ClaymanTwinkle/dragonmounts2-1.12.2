@@ -26,7 +26,7 @@ import java.util.UUID;
 /**
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class DragonReproductionHelper extends DragonHelper {
+public class DragonMateHelper extends DragonHelper {
 
     public static final String NBT_BREEDER = "HatchedByUUID";
     public static final String NBT_REPRO_COUNT = "ReproductionCount";
@@ -38,7 +38,7 @@ public class DragonReproductionHelper extends DragonHelper {
     private static final DataParameter<Optional<UUID>> DATA_BREEDER = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.OPTIONAL_UNIQUE_ID);
     private static final DataParameter<Integer> DATA_REPRO_COUNT = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.VARINT);
 
-    public DragonReproductionHelper(EntityTameableDragon dragon) {
+    public DragonMateHelper(EntityTameableDragon dragon) {
         super(dragon);
 
         dataWatcher.register(DATA_BREEDER, Optional.absent());
@@ -194,8 +194,8 @@ public class DragonReproductionHelper extends DragonHelper {
         baby.getBreedHelper().inheritBreed(parent1, parent2);
 
         // increase reproduction counter
-        parent1.getReproductionHelper().addReproduced();
-        parent2.getReproductionHelper().addReproduced();
+        parent1.getMateHelper().addReproduced();
+        parent2.getMateHelper().addReproduced();
 
         return baby;
     }

@@ -2,17 +2,13 @@ package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds;
 
 import com.TheRPGAdventurer.ROTD.DragonMounts;
 import com.TheRPGAdventurer.ROTD.DragonMountsConfig;
-import com.TheRPGAdventurer.ROTD.client.render.dragon.breathweaponFX.BreathWeaponFXEmitter;
 import com.TheRPGAdventurer.ROTD.inits.ModSounds;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathNode;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.nodes.BreathNodeFactory;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.nodes.BreathProjectileFactory;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.sound.SoundController;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.sound.SoundEffectBreathWeaponNull;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.sound.SoundEffectBreathWeaponP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.sound.SoundEffectNames;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weapons.BreathWeaponP;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.DragonLifeStage;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.util.Pair;
 import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
@@ -22,7 +18,10 @@ import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -310,35 +309,6 @@ public abstract class DragonBreed {
 
     public BreathWeaponSpawnType getBreathWeaponSpawnType(EntityTameableDragon dragon) // todo make abstract
     {
-        throw new UnsupportedOperationException();
-    }
-    // PROJECTILE = spawn a single Entity, similar to EntityFIreball for ghast
-    // NODES = continuous stream of small nodes
-
-    /**
-     * return a new Breath Weapon FX Emitter based on breed
-     *
-     * @return
-     */
-    public BreathWeaponFXEmitter getBreathWeaponFXEmitter(EntityTameableDragon dragon) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * return a new BreathWeapon based on breed
-     *
-     * @return
-     */
-    public BreathWeaponP getBreathWeapon(EntityTameableDragon dragon)  //todo make abstract
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public BreathNodeFactory getBreathNodeFactory(EntityTameableDragon dragon) {
-        throw new UnsupportedOperationException();
-    }
-
-    public BreathProjectileFactory getBreathProjectileFactory(EntityTameableDragon dragon) {
         throw new UnsupportedOperationException();
     }
 
