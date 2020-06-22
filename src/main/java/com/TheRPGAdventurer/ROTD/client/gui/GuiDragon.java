@@ -19,14 +19,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
 
-import java.io.IOException;
+import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
 public class GuiDragon extends GuiContainer {
 
-    public static final ResourceLocation lockOpen = new ResourceLocation(DragonMounts.MODID, "textures/gui/lock_1.png");
-    public static final ResourceLocation lockLocked = new ResourceLocation(DragonMounts.MODID, "textures/gui/lock_2.png");
-    public static final ResourceLocation lockDisabled = new ResourceLocation(DragonMounts.MODID, "textures/lock_3.png");
     private static final ResourceLocation mainGui = new ResourceLocation(DragonMounts.MODID, "textures/gui/dragon.png");
     private static final ResourceLocation offhand = new ResourceLocation(DragonMounts.MODID, "textures/gui/offhand.png");
     private static final ResourceLocation hunger_full = new ResourceLocation(DragonMounts.MODID, "textures/gui/hunger_full.png");
@@ -151,8 +148,8 @@ public class GuiDragon extends GuiContainer {
         this.buttonList.clear();
         Keyboard.enableRepeatEvents(true);
 
-        lock = new LockButton(0, width / 2 + 66, height / 2 - 53, 18, 14, dragon);
-        sit = new GuiButton(1, width / 2 + 47, height / 2 - 53, 18, 14, "SIT");
+        sit = new GuiButton(1, width / 2 + 47, height / 2 - 53, 18, 14, "");
+        lock = new LockButton(0, width / 2 + 66, height / 2 - 53, 18, 14);
 
         buttonList.add(lock);
         buttonList.add(sit);
@@ -160,7 +157,7 @@ public class GuiDragon extends GuiContainer {
     }
 
     @Override
-    protected void actionPerformed(GuiButton button) throws IOException {
+    protected void actionPerformed(GuiButton button) {
         boolean sit = button == this.sit;
         boolean lock = button == this.lock;
         if (sit) {
@@ -172,6 +169,8 @@ public class GuiDragon extends GuiContainer {
 
     public void updateScreen() {
         lock.enabled = (player == dragon.getOwner());
+        lock.isLocked = !dragon.allowedOtherPlayers();
+        sit.displayString = dragon.isSitting() ? "SIT" : "STAND";
     }
 
     @Override
@@ -183,27 +182,29 @@ public class GuiDragon extends GuiContainer {
         this.renderHoveredToolTip(mouseX, mouseY);
     }
 
-    static class LockButton extends GuiButton {
+    private static class LockButton extends GuiButton {
 
-        private EntityTameableDragon dragon;
+        private static final ResourceLocation lockOpen = new ResourceLocation(DragonMounts.MODID, "textures/gui/lock_1.png");
+        private static final ResourceLocation lockLocked = new ResourceLocation(DragonMounts.MODID, "textures/gui/lock_2.png");
+        private static final ResourceLocation lockDisabled = new ResourceLocation(DragonMounts.MODID, "textures/gui/lock_3.png");
 
-        public LockButton(int buttonId, int x, int y, int i, int j, EntityTameableDragon dragon) {
-            super(buttonId, x, y, i, j, "");
-            this.dragon = dragon;
+        private boolean isLocked = true;
+
+        LockButton(int buttonId, int x, int y, int widthIn, int heightIn) {
+            super(buttonId, x, y, widthIn, heightIn, "");
         }
+
 
         /**
          * Draws this button to the screen.
          */
         @Override
-        public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+        public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
             if (visible) {
-                if (dragon.allowedOtherPlayers()) {
-                    mc.getTextureManager().bindTexture(lockOpen);
-                } else if (!dragon.allowedOtherPlayers()) {
-                    mc.getTextureManager().bindTexture(lockLocked);
-                } else if (!enabled) {
+                if (!enabled) {
                     mc.getTextureManager().bindTexture(lockDisabled);
+                } else {
+                    mc.getTextureManager().bindTexture(isLocked ? lockLocked : lockOpen);
                 }
 
                 GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);

@@ -1844,7 +1844,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             this.playSound(SoundEvents.BLOCK_END_PORTAL_SPAWN, 2, 1);
         }
 
-        if (currentType == EnumDragonBreed.WATER) {
+        if (currentType == EnumDragonBreed.SYLPHID) {
             this.setBreedType(EnumDragonBreed.STORM);
 
             this.playSound(SoundEvents.BLOCK_PORTAL_TRIGGER, 2, 1);

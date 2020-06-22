@@ -15,7 +15,7 @@ public enum EnumDragonBreed implements IStringSerializable {
     AETHER(0, DragonBreedAir::new),
     FIRE(1, DragonBreedFire::new),
     FOREST(2, DragonBreedForest::new),
-    WATER(3, DragonBreedWater::new),
+    SYLPHID(3, DragonBreedWater::new),
     ICE(4, DragonBreedIce::new),
     END(5, DragonBreedEnd::new),
     NETHER(6, DragonBreedNether::new),
