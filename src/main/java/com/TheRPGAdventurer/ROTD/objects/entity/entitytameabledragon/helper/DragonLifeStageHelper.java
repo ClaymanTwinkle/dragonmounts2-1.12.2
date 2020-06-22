@@ -186,6 +186,7 @@ public class DragonLifeStageHelper extends DragonHelper {
     @Override
     public void writeToNBT(NBTTagCompound nbt) {
         nbt.setInteger(NBT_TICKS_SINCE_CREATION, getTicksSinceCreation());
+        nbt.setInteger("AgeTicks", getTicksSinceCreation());
     }
 
     @Override
@@ -194,6 +195,8 @@ public class DragonLifeStageHelper extends DragonHelper {
         ticksRead = DragonLifeStage.clipTickCountToValid(ticksRead);
         ticksSinceCreationServer = ticksRead;
         dataWatcher.set(DATA_TICKS_SINCE_CREATION, ticksSinceCreationServer);
+
+        setTicksSinceCreation(nbt.getInteger("AgeTicks"));
     }
 
     /**

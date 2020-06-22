@@ -13,9 +13,10 @@ import com.TheRPGAdventurer.ROTD.DragonMounts;
 import com.TheRPGAdventurer.ROTD.DragonMountsConfig;
 import com.TheRPGAdventurer.ROTD.client.gui.GuiHandler;
 import com.TheRPGAdventurer.ROTD.client.model.dragon.anim.DragonAnimator;
-import com.TheRPGAdventurer.ROTD.inits.*;
-import com.TheRPGAdventurer.ROTD.network.MessageDragonBreath;
-import com.TheRPGAdventurer.ROTD.network.MessageDragonExtras;
+import com.TheRPGAdventurer.ROTD.inits.ModBlocks;
+import com.TheRPGAdventurer.ROTD.inits.ModItems;
+import com.TheRPGAdventurer.ROTD.inits.ModSounds;
+import com.TheRPGAdventurer.ROTD.inits.ModTools;
 import com.TheRPGAdventurer.ROTD.objects.blocks.BlockDragonBreedEgg;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitycarriage.EntityCarriage;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonSit;
@@ -34,7 +35,6 @@ import com.TheRPGAdventurer.ROTD.util.reflection.PrivateAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
@@ -69,8 +69,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.IShearable;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -103,13 +101,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     // data value IDs
     private static final DataParameter<Boolean> GROWTH_PAUSED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
 
-    private static final DataParameter<Boolean> DATA_FLYING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> GOING_DOWN = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> BOOSTING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> HOVER_CANCELLED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> Y_LOCKED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> FOLLOW_YAW = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
-
     private static final DataParameter<Boolean> ALT_TEXTURE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
 
     private static final DataParameter<ItemStack> WHISTLE = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.ITEM_STACK);
@@ -126,10 +117,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     private int ticksSinceLastAttack;
 
 
-    private boolean isGoingDown;
-    private boolean isUnhovered;
-    private boolean yLocked;
-    private boolean followYaw;
     private DragonAnimator animator;
 
     public EntityTameableDragon(World world) {
@@ -146,6 +133,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         addHelper(new DragonHungerHelper(this));
         addHelper(new DragonLootHelper(this));
         addHelper(new DragonInventoryHelper(this));
+        addHelper(new DragonControlHelper(this));
         if (isServer()) addHelper(new DragonBrain(this));
 
         // set base size
@@ -155,8 +143,9 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         // init helpers
         moveHelper = new DragonMoveHelper(this);
         aiSit = new EntityAIDragonSit(this);
-        helpers.values().forEach(DragonHelper::applyEntityAttributes);
         animator = new DragonAnimator(this);
+
+        helpers.values().forEach(DragonHelper::applyEntityAttributes);
     }
 
     @Override
@@ -169,18 +158,11 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     protected void entityInit() {
         super.entityInit();
 
-        dataManager.register(DATA_FLYING, false);
         dataManager.register(GROWTH_PAUSED, false);
-        dataManager.register(GOING_DOWN, false);
 
-        dataManager.register(Y_LOCKED, false);
-        dataManager.register(HOVER_CANCELLED, false);
         dataManager.register(ALT_TEXTURE, false);
-        dataManager.register(BOOSTING, false);
 
         dataManager.register(WHISTLE, ItemStack.EMPTY);
-        dataManager.register(FOLLOW_YAW, true);
-
     }
 
     @Override
@@ -204,12 +186,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     @Override
     public void writeEntityToNBT(NBTTagCompound nbt) {
         super.writeEntityToNBT(nbt);
-
-        nbt.setBoolean("unhovered", this.isUnHovered());
-        nbt.setBoolean("followyaw", this.followYaw());
-        nbt.setInteger("AgeTicks", this.getLifeStageHelper().getTicksSinceCreation());
-        nbt.setBoolean("boosting", this.boosting());
-        nbt.setBoolean("ylocked", this.isYLocked());
         nbt.setBoolean("growthpause", this.isGrowthPaused());
         helpers.values().forEach(helper -> helper.writeToNBT(nbt));
     }
@@ -220,14 +196,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     @Override
     public void readEntityFromNBT(NBTTagCompound nbt) {
         super.readEntityFromNBT(nbt);
-
         this.setGrowthPaused(nbt.getBoolean("growthpause"));
-        this.getLifeStageHelper().setTicksSinceCreation(nbt.getInteger("AgeTicks"));
-
-        this.setUnHovered(nbt.getBoolean("unhovered"));
-        this.setYLocked(nbt.getBoolean("ylocked"));
-        this.setFollowYaw(nbt.getBoolean("followyaw"));
-        this.setBoosting(nbt.getBoolean("boosting"));
         helpers.values().forEach(helper -> helper.readFromNBT(nbt));
     }
 
@@ -263,11 +232,11 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     }
 
     public boolean boosting() {
-        return dataManager.get(BOOSTING);
+        return getControlHelper().boosting();
     }
 
     public void setBoosting(boolean allow) {
-        dataManager.set(BOOSTING, allow);
+        getControlHelper().setBoosting(allow);
     }
 
     // used to be called isChestedLeft
@@ -380,15 +349,14 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * Returns true if the entity is flying.
      */
     public boolean isFlying() {
-        return dataManager.get(DATA_FLYING);
+        return getControlHelper().isFlying();
     }
 
     /**
      * f Set the flying flag of the entity.
      */
     public void setFlying(boolean flying) {
-        L.trace("setFlying({})", flying);
-        dataManager.set(DATA_FLYING, flying);
+        getControlHelper().setFlying(flying);
     }
 
     /**
@@ -409,21 +377,14 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * Returns true if the entity is breathing.
      */
     public boolean isGoingDown() {
-        if (isClient()) {
-            this.isGoingDown = this.dataManager.get(GOING_DOWN);
-            return isGoingDown;
-        }
-        return isGoingDown;
+        return getControlHelper().isGoingDown();
     }
 
     /**
      * Set the breathing flag of the entity.
      */
     public void setGoingDown(boolean goingdown) {
-        this.dataManager.set(GOING_DOWN, goingdown);
-        if (isServer()) {
-            this.isGoingDown = goingdown;
-        }
+        getControlHelper().setGoingDown(goingdown);
     }
 
     public boolean altTextures() {
@@ -452,51 +413,27 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     }
 
     public boolean isYLocked() {
-        if (isClient()) {
-            boolean yLocked = dataManager.get(Y_LOCKED);
-            this.yLocked = yLocked;
-            return yLocked;
-        }
-        return yLocked;
+        return getControlHelper().isYLocked();
     }
 
     public void setYLocked(boolean yLocked) {
-        dataManager.set(Y_LOCKED, yLocked);
-        if (isServer()) {
-            this.yLocked = yLocked;
-        }
+        getControlHelper().setYLocked(yLocked);
     }
 
     public boolean isUnHovered() {
-        if (isClient()) {
-            boolean isUnhovered = dataManager.get(HOVER_CANCELLED);
-            this.isUnhovered = isUnhovered;
-            return isUnhovered;
-        }
-        return isUnhovered;
+        return getControlHelper().isUnHovered();
     }
 
     public void setUnHovered(boolean isUnhovered) {
-        dataManager.set(HOVER_CANCELLED, isUnhovered);
-        if (isServer()) {
-            this.isUnhovered = isUnhovered;
-        }
+        getControlHelper().setUnHovered(isUnhovered);
     }
 
     public boolean followYaw() {
-        if (isClient()) {
-            boolean folowYaw = dataManager.get(FOLLOW_YAW);
-            this.followYaw = folowYaw;
-            return folowYaw;
-        }
-        return followYaw;
+        return getControlHelper().followYaw();
     }
 
     public void setFollowYaw(boolean folowYaw) {
-        dataManager.set(FOLLOW_YAW, folowYaw);
-        if (isServer()) {
-            this.followYaw = folowYaw;
-        }
+        getControlHelper().setFollowYaw(folowYaw);
     }
 
     /**
@@ -576,45 +513,15 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         super.onEntityUpdate();
     }
 
-    @SideOnly(Side.CLIENT)
-    private void updateKeys() {
-        Minecraft mc = Minecraft.getMinecraft();
-        if ((hasControllingPlayer(mc.player) && getControllingPlayer() != null) ||
-                (this.getRidingEntity() instanceof EntityPlayer && this.getRidingEntity() != null && this.getRidingEntity().equals(mc.player))) {
-            boolean isBreathing = ModKeys.KEY_BREATH.isKeyDown();
-            boolean isBoosting = ModKeys.BOOST.isKeyDown();
-            boolean isDown = ModKeys.DOWN.isKeyDown();
-            boolean projectile = ModKeys.KEY_PROJECTILE.isPressed();
-            boolean unhover = ModKeys.KEY_HOVERCANCEL.isPressed();
-            boolean followyaw = ModKeys.FOLLOW_YAW.isPressed();
-            boolean locky = ModKeys.KEY_LOCKEDY.isPressed();
-
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonBreath(getEntityId(), isBreathing));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonExtras(getEntityId(), unhover, followyaw, locky, isBoosting, isDown));
-        }
-    }
-
     @Override
     public void onUpdate() {
         super.onUpdate();
-//        EntityPlayer rider = getControllingPlayer();
-//        if (rider != null) {
-//            if (entityIsJumping(rider)) {
-//                motionY += 0.4;
-//            } else if (isGoingDown()) {
-//                motionY -= 0.4;
-//            }
-//        }
-        if (isClient()) {
-            this.updateKeys();
-            helpers.values().forEach(DragonHelper::onUpdate);
-        }
+        helpers.values().forEach(DragonHelper::onUpdate);
     }
 
     @Override
     public void onLivingUpdate() {
         helpers.values().forEach(DragonHelper::onLivingUpdate);
-        getBreed().onLivingUpdate(this);
 
         if (isServer()) {
             final float DUMMY_MOVETIME = 0;
@@ -683,14 +590,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             }
         }
 
-
-        if (this.getRidingEntity() instanceof EntityLivingBase) {
-            EntityLivingBase ridingEntity = (EntityLivingBase) this.getRidingEntity();
-            if (ridingEntity.isElytraFlying()) {
-                this.setUnHovered(true);
-            }
-        }
-
         if (ticksShear <= 0) {
             setSheared(false);
         }
@@ -748,10 +647,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
                     }
                 }
             }
-        }
-
-        if (getControllingPlayer() == null && !isFlying() && isSitting()) {
-            removePassengers();
         }
 
         Random rand = new Random();
@@ -887,6 +782,9 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         return name;
     }
 
+    /**
+     * 咆哮
+     */
     private void roar() {
         if (!isDead && getBreed().getRoarSoundEvent(this) != null && !isUsingBreathWeapon()) {
             this.roarTicks = 0;
@@ -1386,6 +1284,10 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         return getHelper(DragonInventoryHelper.class);
     }
 
+    public DragonControlHelper getControlHelper() {
+        return getHelper(DragonControlHelper.class);
+    }
+
     public DragonAnimator getAnimator() {
         return animator;
     }
@@ -1494,7 +1396,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * @param player EntityPlayer
      * @return boolean
      */
-    private boolean hasControllingPlayer(EntityPlayer player) {
+    public boolean hasControllingPlayer(EntityPlayer player) {
         return this.getControllingPassenger() != null && this.getControllingPassenger() instanceof EntityPlayer && this.getControllingPassenger().getUniqueID().equals(player.getUniqueID());
     }
 
@@ -1525,7 +1427,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             this.motionX = 0.0D;
             this.motionY = 0.0D;
             this.motionZ = 0.0D;
-            this.onUpdate();
             if (this.isRiding()) this.updateRiding((EntityLivingBase) riding);
         }
     }
@@ -1594,12 +1495,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             }
 
             Vec3d mountedPositionOffset = getBreed().getAdultMountedPositionOffset(isSitting(), passengerNumber);
-
-//      // todo remove (debugging only)
-//      mountedPositionOffset = new Vec3d(DebugSettings.getDebugParameter("x"),
-//                                        DebugSettings.getDebugParameter("y"),
-//                                        DebugSettings.getDebugParameter("z"));
-//      System.out.println("MountedOffset:" + mountedPositionOffset);
 
             double dragonScaling = getScale(); //getBreed().getAdultModelRenderScaleFactor() * getScale();
 

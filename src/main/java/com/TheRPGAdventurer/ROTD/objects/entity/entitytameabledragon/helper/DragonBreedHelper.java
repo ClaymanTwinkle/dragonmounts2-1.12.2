@@ -149,6 +149,12 @@ public class DragonBreedHelper extends DragonHelper {
         }
     }
 
+    @Override
+    public void onUpdate() {
+        super.onUpdate();
+        EnumDragonBreed currentType = getBreedType();
+        currentType.getBreed().onUpdate(dragon);
+    }
 
     @Override
     public void onLivingUpdate() {
@@ -208,8 +214,7 @@ public class DragonBreedHelper extends DragonHelper {
                 }
             }
         }
-
-        currentType.getBreed().onUpdate(dragon);
+        currentType.getBreed().onLivingUpdate(dragon);
     }
 
     @Override

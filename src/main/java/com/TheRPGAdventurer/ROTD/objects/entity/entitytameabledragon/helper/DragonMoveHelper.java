@@ -11,7 +11,6 @@ import static net.minecraft.entity.SharedMonsterAttributes.MOVEMENT_SPEED;
 public class DragonMoveHelper extends EntityMoveHelper implements PrivateAccessor {
 
     private final EntityTameableDragon dragon;
-    private static int YAW_SPEED = 5;
 
     public DragonMoveHelper(EntityTameableDragon dragon) {
         super(dragon);
