@@ -7,8 +7,8 @@ import java.util.List;
 public class EntityAIDragonFollowParent extends EntityAIDragonBase {
 
     // assume any adult dragon nearby is a parent even if its not
-    EntityTameableDragon adultDragon;
-    double moveSpeed;
+    private EntityTameableDragon adultDragon;
+    private double moveSpeed;
     private int delayCounter;
 
     public EntityAIDragonFollowParent(EntityTameableDragon dragon, double speed) {
@@ -21,10 +21,10 @@ public class EntityAIDragonFollowParent extends EntityAIDragonBase {
      * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute() {
-        if (!dragon.isBaby()) {
+        if (!dragon.isBaby() || !dragon.onGround) {
             return false;
         } else {
-            List<EntityTameableDragon> list = this.dragon.world.<EntityTameableDragon>getEntitiesWithinAABB(this.dragon.getClass(), this.dragon.getEntityBoundingBox().grow(8.0D, 4.0D, 8.0D));
+            List<EntityTameableDragon> list = this.dragon.world.getEntitiesWithinAABB(this.dragon.getClass(), this.dragon.getEntityBoundingBox().grow(8.0D, 4.0D, 8.0D));
             EntityTameableDragon adultDragon1 = null;
             double d0 = Double.MAX_VALUE;
 

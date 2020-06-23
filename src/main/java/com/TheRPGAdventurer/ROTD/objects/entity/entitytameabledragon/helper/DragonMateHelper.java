@@ -130,6 +130,9 @@ public class DragonMateHelper extends DragonHelper {
         }
 
         EntityTameableDragon dragonMate = (EntityTameableDragon) mate;
+        if(!dragonMate.isAdult()) {
+            return false;
+        }
 
         if ((dragonMate.isMale() && !dragon.isMale()) || (!dragonMate.isMale() && dragon.isMale())) {
             return true;
