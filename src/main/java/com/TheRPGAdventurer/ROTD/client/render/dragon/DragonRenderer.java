@@ -29,6 +29,8 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -42,6 +44,7 @@ import static org.lwjgl.opengl.GL11.*;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class DragonRenderer extends RenderLiving<EntityTameableDragon> {
+    private static final Logger L = LogManager.getLogger();
 
     public static final String TEX_BASE = "textures/entities/dragon/";
     public static final ResourceLocation ENDERCRYSTAL_BEAM_TEXTURES = new ResourceLocation("textures/entity/endercrystal/endercrystal_beam.png");
@@ -135,7 +138,6 @@ public class DragonRenderer extends RenderLiving<EntityTameableDragon> {
      */
     @Override
     protected void renderModel(EntityTameableDragon dragon, float moveTime, float moveSpeed, float ticksExisted, float lookYaw, float lookPitch, float scale) {
-
         float death = dragon.getDeathTime() / (float) dragon.getMaxDeathTime();
 
         if (death > 0) {

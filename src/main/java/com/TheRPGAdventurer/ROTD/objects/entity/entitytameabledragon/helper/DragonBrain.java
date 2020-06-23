@@ -84,8 +84,10 @@ public class DragonBrain extends DragonHelper {
         tasks.addTask(2, dragon.getAISit()); // mutex 4+1
         tasks.addTask(3, new EntityAIDragonFollowOwnerElytraFlying(dragon)); // mutex all
         tasks.addTask(4, new EntityAIMoveTowardsRestriction(dragon, 1)); // mutex 1
-
+        tasks.addTask(5, new EntityAIDragonMate(dragon, 0.6)); // mutex 2+1
+        tasks.addTask(5, new EntityAIDragonLeapAtTarget(dragon, 0.7F)); // mutex 1
         tasks.addTask(6, new EntityAIDragonFlight(dragon, 1)); // mutex 1
+        tasks.addTask(6, new EntityAIDragonTempt(dragon, 0.75, false, OreDictionary.getOres("listAllfishraw").stream().map(ItemStack::getItem).collect(Collectors.toSet()))); // mutex 2+1
         tasks.addTask(2, new EntityAISwimming(dragon)); // mutex 4
         tasks.addTask(7, new EntityAIAttackMelee(dragon, 1, true)); // mutex 2+1
         tasks.addTask(9, new EntityAIDragonFollowOwner(dragon, 1, 14, 128)); // mutex 2+1
@@ -93,15 +95,7 @@ public class DragonBrain extends DragonHelper {
         tasks.addTask(10, new EntityAIWander(dragon, 1)); // mutex 1
         tasks.addTask(11, new EntityAIDragonWatchIdle(dragon)); // mutex 2
         tasks.addTask(11, new EntityAIDragonWatchLiving(dragon, 16, 0.05f)); // mutex 2
-
-        if (dragon.isBaby() && dragon.onGround) {
-            tasks.addTask(5, new EntityAILeapAtTarget(dragon, 0.7F)); // mutex 1
-            tasks.addTask(12, new EntityAIDragonFollowParent(dragon, 1.4f));
-            tasks.addTask(6, new EntityAITempt(dragon, 0.75, false, OreDictionary.getOres("listAllfishraw").stream().map(ItemStack::getItem).collect(Collectors.toSet()))); // mutex 2+1
-        }
-        if (dragon.isAdult()) {
-            tasks.addTask(5, new EntityAIDragonMate(dragon, 0.6)); // mutex 2+1
-        }
+        tasks.addTask(12, new EntityAIDragonFollowParent(dragon, 1.4f));
 
         targetTasks.addTask(2, new EntityAIOwnerHurtByTarget(dragon)); // mutex 1
         targetTasks.addTask(3, new EntityAIOwnerHurtTarget(dragon)); // mutex 1

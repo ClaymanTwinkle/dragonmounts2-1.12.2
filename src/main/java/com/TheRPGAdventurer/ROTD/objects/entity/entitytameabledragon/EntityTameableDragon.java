@@ -84,6 +84,7 @@ import static net.minecraft.entity.SharedMonsterAttributes.FOLLOW_RANGE;
  */
 public class EntityTameableDragon extends EntityTameable implements IShearable, PrivateAccessor {
 
+    private static final Logger L = LogManager.getLogger();
     // base attributes
     private static final double BASE_GROUND_SPEED = 0.4;
     private static final double BASE_AIR_SPEED = 0.9;
@@ -96,7 +97,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     private static final double BASE_FOLLOW_RANGE_FLYING = BASE_FOLLOW_RANGE * 2;
     private static final int HOME_RADIUS = 64;
     private static final double IN_AIR_THRESH = 10;
-    private static final Logger L = LogManager.getLogger();
 
     // data value IDs
     private static final DataParameter<Boolean> GROWTH_PAUSED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
@@ -144,6 +144,10 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         moveHelper = new DragonMoveHelper(this);
         aiSit = new EntityAIDragonSit(this);
         animator = new DragonAnimator(this);
+
+//        if (isServer()) {
+//            addHelper(new DragonBrain(this));
+//        }
 
         helpers.values().forEach(DragonHelper::applyEntityAttributes);
     }
@@ -515,8 +519,8 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
     @Override
     public void onUpdate() {
-        super.onUpdate();
         helpers.values().forEach(DragonHelper::onUpdate);
+        super.onUpdate();
     }
 
     @Override
@@ -568,7 +572,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
                 }
 
                 // tasks need to be updated after switching modes
-                getBrain().updateAITasks();
+                getNavigator().clearPath();
 
             }
 
