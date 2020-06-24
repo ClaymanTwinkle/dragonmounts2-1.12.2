@@ -3,10 +3,8 @@ package com.TheRPGAdventurer.ROTD.network;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.util.DMUtils;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -19,18 +17,20 @@ public class MessageDragonExtras implements IMessage {
     public boolean locky;
     public boolean isBoosting;
     public boolean down;
+    public boolean up;
     private int dragonId;
 
     public MessageDragonExtras() {
     }
 
-    public MessageDragonExtras(int dragonId, boolean isHoverCancel, boolean isFollowYaw, boolean locky, boolean isBoosting, boolean down) {
+    public MessageDragonExtras(int dragonId, boolean isHoverCancel, boolean isFollowYaw, boolean locky, boolean isBoosting, boolean down, boolean up) {
         this.dragonId = dragonId;
         this.isHoverCancel = isHoverCancel;
         this.isFollowYaw = isFollowYaw;
         this.locky = locky;
         this.isBoosting = isBoosting;
         this.down = down;
+        this.up = up;
     }
 
 
@@ -42,7 +42,7 @@ public class MessageDragonExtras implements IMessage {
         locky = buf.readBoolean();
         isBoosting = buf.readBoolean();
         down = buf.readBoolean();
-
+        up = buf.readBoolean();
     }
 
     @Override
@@ -53,6 +53,7 @@ public class MessageDragonExtras implements IMessage {
         buf.writeBoolean(locky);
         buf.writeBoolean(isBoosting);
         buf.writeBoolean(down);
+        buf.writeBoolean(up);
 
     }
 
@@ -80,11 +81,12 @@ public class MessageDragonExtras implements IMessage {
                     player.sendStatusMessage(new TextComponentTranslation(DMUtils.translateToLocal("msg.dragon.toggleYLock") + (dragon.isYLocked() ? ": On" : ": Off")), false);
                 }
 
-                if (message.down) dragon.setGoingDown(true);
-                else dragon.setGoingDown(false);
+                dragon.setGoingDown(message.down);
 
-                if (message.isBoosting) dragon.setBoosting(true);
-                else dragon.setBoosting(false);
+                dragon.setGoingUp(message.up);
+
+                dragon.setBoosting(message.isBoosting);
+
             }
             return null;
         }

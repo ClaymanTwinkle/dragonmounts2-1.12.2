@@ -15,7 +15,6 @@ public class DragonMoveHelper extends EntityMoveHelper implements PrivateAccesso
     public DragonMoveHelper(EntityTameableDragon dragon) {
         super(dragon);
         this.dragon = dragon;
-        this.speed = 0.9D;
     }
 
     @Override

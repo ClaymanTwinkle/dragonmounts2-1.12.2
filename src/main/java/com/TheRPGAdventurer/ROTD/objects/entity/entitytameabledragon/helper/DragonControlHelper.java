@@ -28,12 +28,14 @@ public class DragonControlHelper extends DragonHelper {
     private static final DataParameter<Boolean> Y_LOCKED = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> BOOSTING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> GOING_DOWN = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Boolean> GOING_UP = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> DATA_FLYING = EntityDataManager.createKey(EntityTameableDragon.class, DataSerializers.BOOLEAN);
 
     private boolean followYaw;
     private boolean isUnhovered;
     private boolean yLocked;
     private boolean isGoingDown;
+    private boolean isGoingUp;
 
     public DragonControlHelper(EntityTameableDragon dragon) {
         super(dragon);
@@ -42,6 +44,7 @@ public class DragonControlHelper extends DragonHelper {
         dataWatcher.register(Y_LOCKED, false);
         dataWatcher.register(BOOSTING, false);
         dataWatcher.register(GOING_DOWN, false);
+        dataWatcher.register(GOING_UP, false);
         dataWatcher.register(DATA_FLYING, false);
     }
 
@@ -95,12 +98,13 @@ public class DragonControlHelper extends DragonHelper {
             boolean isBreathing = ModKeys.KEY_BREATH.isKeyDown();
             boolean isBoosting = ModKeys.BOOST.isKeyDown();
             boolean isDown = ModKeys.DOWN.isKeyDown();
+            boolean isUp = mc.gameSettings.keyBindJump.isKeyDown();
             boolean unhover = ModKeys.KEY_HOVERCANCEL.isPressed();
             boolean followyaw = ModKeys.FOLLOW_YAW.isPressed();
             boolean locky = ModKeys.KEY_LOCKEDY.isPressed();
 
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonBreath(dragon.getEntityId(), isBreathing));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonExtras(dragon.getEntityId(), unhover, followyaw, locky, isBoosting, isDown));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonExtras(dragon.getEntityId(), unhover, followyaw, locky, isBoosting, isDown, isUp));
         }
     }
 
@@ -178,6 +182,27 @@ public class DragonControlHelper extends DragonHelper {
         this.dataWatcher.set(GOING_DOWN, goingdown);
         if (dragon.isServer()) {
             this.isGoingDown = goingdown;
+        }
+    }
+
+    /**
+     * Returns true if the entity is breathing.
+     */
+    public boolean isGoingUp() {
+        if (dragon.isClient()) {
+            this.isGoingUp = this.dataWatcher.get(GOING_UP);
+            return isGoingUp;
+        }
+        return isGoingUp;
+    }
+
+    /**
+     * Set the breathing flag of the entity.
+     */
+    public void setGoingUp(boolean goingUp) {
+        this.dataWatcher.set(GOING_UP, goingUp);
+        if (dragon.isServer()) {
+            this.isGoingUp = goingUp;
         }
     }
 

@@ -391,6 +391,20 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         getControlHelper().setGoingDown(goingdown);
     }
 
+    /**
+     * Returns true if the entity is breathing.
+     */
+    public boolean isGoingUp() {
+        return getControlHelper().isGoingUp();
+    }
+
+    /**
+     * Set the breathing flag of the entity.
+     */
+    public void setGoingUp(boolean goingUp) {
+        getControlHelper().setGoingUp(goingUp);
+    }
+
     public boolean altTextures() {
         return this.dataManager.get(ALT_TEXTURE);
     }
@@ -474,7 +488,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * Causes this entity to lift off if it can fly.
      */
     public void liftOff() {
-        L.trace("liftOff");
+        L.info("==========liftOff");
         if (canFly()) {
             boolean ridden = isBeingRidden();
             // stronger jump for an easier lift-off
@@ -528,13 +542,13 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         helpers.values().forEach(DragonHelper::onLivingUpdate);
 
         if (isServer()) {
-            final float DUMMY_MOVETIME = 0;
-            final float DUMMY_MOVESPEED = 0;
-            animator.setMovement(DUMMY_MOVETIME, DUMMY_MOVESPEED);
-            float netYawHead = getRotationYawHead() - renderYawOffset;
-            animator.setLook(netYawHead, rotationPitch);
-            animator.tickingUpdate();
-            animator.animate();
+//            final float DUMMY_MOVETIME = 0;
+//            final float DUMMY_MOVESPEED = 0;
+//            animator.setMovement(DUMMY_MOVETIME, DUMMY_MOVESPEED);
+//            float netYawHead = getRotationYawHead() - renderYawOffset;
+//            animator.setLook(netYawHead, rotationPitch);
+//            animator.tickingUpdate();
+//            animator.animate();
 
             // set home position near owner when tamed
             if (isTamed()) {
@@ -562,7 +576,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
                 // update AI follow range (needs to be updated before creating
                 // new PathNavigate!)
-                getEntityAttribute(FOLLOW_RANGE).setBaseValue(getDragonSpeed());
+                getEntityAttribute(FOLLOW_RANGE).setBaseValue(isFlying() ? BASE_FOLLOW_RANGE_FLYING : BASE_FOLLOW_RANGE);
 
                 // update pathfinding method
                 if (isFlying()) {
@@ -575,10 +589,8 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
                 getNavigator().clearPath();
 
             }
-
-        } else {
-            animator.tickingUpdate();
         }
+        animator.tickingUpdate();
 
         if (ticksSinceLastAttack >= 0) { // used for jaw animation
             ++ticksSinceLastAttack;
@@ -823,22 +835,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         else return getBreed().getHurtSound();
     }
 
-    private SoundEvent getWingsSound() {
-        return getBreed().getWingsSound();
-    }
-
-    private SoundEvent getStepSound() {
-        return getBreed().getStepSound();
-    }
-
-    private SoundEvent getEatSound() {
-        return getBreed().getEatSound();
-    }
-
-    private SoundEvent getAttackSound() {
-        return getBreed().getAttackSound();
-    }
-
     /**
      * Plays living's sound at its position
      */
@@ -868,7 +864,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             // play wing sounds
             float pitch = (1);
             float volume = 0.8f + (getScale() - speed);
-            playSound(getWingsSound(), volume, pitch, false);
+            playSound(getBreed().getWingsSound(), volume, pitch, false);
         }
     }
 
@@ -893,7 +889,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
                 soundType = block.getSoundType();
             stepSound = soundType.getStepSound();
         } else {
-            stepSound = getStepSound();
+            stepSound = getBreed().getStepSound();
         }
         playSound(stepSound, 0.2f, 1f, false);
     }
@@ -1215,7 +1211,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     @Override
     public void swingArm(@Nonnull EnumHand hand) {
         // play eating sound
-        playSound(getAttackSound(), 1, 0.7f);
+        playSound(getBreed().getAttackSound(), 1, 0.7f);
 
         // play attack animation
         if (world instanceof WorldServer) {
@@ -1327,10 +1323,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
     public DragonBreed getBreed() {
         return getBreedType().getBreed();
-    }
-
-    private double getDragonSpeed() {
-        return isFlying() ? BASE_FOLLOW_RANGE_FLYING : BASE_FOLLOW_RANGE;
     }
 
     public void updateIntendedRideRotation(EntityPlayer rider) {
@@ -1743,7 +1735,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     }
 
     private void eatEvent(Item item) {
-        playSound(this.getEatSound(), 1f, 0.75f);
+        playSound(this.getBreed().getEatSound(), 1f, 0.75f);
         double motionX = this.getRNG().nextGaussian() * 0.07D;
         double motionY = this.getRNG().nextGaussian() * 0.07D;
         double motionZ = this.getRNG().nextGaussian() * 0.07D;

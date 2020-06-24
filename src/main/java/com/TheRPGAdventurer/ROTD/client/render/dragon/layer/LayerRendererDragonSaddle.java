@@ -6,6 +6,7 @@ import com.TheRPGAdventurer.ROTD.client.render.dragon.breeds.DefaultDragonBreedR
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 
 /**
+ * 渲染鞍
  * Created by EveryoneElse on 14/06/2015.
  */
 public class LayerRendererDragonSaddle extends LayerRendererDragon {

@@ -12,17 +12,19 @@ package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breeds.EnumDragonBreed;
 import com.TheRPGAdventurer.ROTD.util.math.MathX;
-import com.TheRPGAdventurer.ROTD.util.reflection.PrivateAccessor;
 import net.minecraft.init.MobEffects;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.Vec3d;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Abstract "AI" for player-controlled movements.
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class EntityAIDragonPlayerControl extends EntityAIDragonBase implements PrivateAccessor {
+public class EntityAIDragonPlayerControl extends EntityAIDragonBase {
+    private static final Logger L = LogManager.getLogger();
 
     public EntityAIDragonPlayerControl(EntityTameableDragon dragon) {
         super(dragon);
@@ -42,11 +44,13 @@ public class EntityAIDragonPlayerControl extends EntityAIDragonBase implements P
 
     @Override
     public void updateTask() {
-        Vec3d wp = rider.getLook(1.0F);
+        Vec3d wp = rider.getLookVec();
 
         double x = dragon.posX;
         double y = dragon.posY;
         double z = dragon.posZ;
+
+        double speed = dragon.getFlySpeed();
 
         if (dragon.getBreedType() == EnumDragonBreed.SYLPHID) {
             PotionEffect watereffect = new PotionEffect(MobEffects.WATER_BREATHING, 200);
@@ -69,34 +73,32 @@ public class EntityAIDragonPlayerControl extends EntityAIDragonBase implements P
             dragon.updateIntendedRideRotation(rider);
         }
 
-        if (dragon.isServerWorld()) {
-            // control direction with movement keys
-            if (rider.moveStrafing != 0 || rider.moveForward != 0) {
-                if (rider.moveForward < 0) {
-                    wp = wp.rotateYaw(MathX.PI_F);
-                } else if (rider.moveStrafing > 0) {
-                    wp = wp.rotateYaw(MathX.PI_F * 0.5f);
-                } else if (rider.moveStrafing < 0) {
-                    wp = wp.rotateYaw(MathX.PI_F * -0.5f);
-                }
-
-                x += wp.x * 10;
-                if (!dragon.isYLocked()) y += wp.y * 10;
-                z += wp.z * 10;
+        // control direction with movement keys
+        if (rider.moveStrafing != 0 || rider.moveForward != 0) {
+            if (rider.moveForward < 0) {
+                wp = wp.rotateYaw(MathX.PI_F);
+            } else if (rider.moveStrafing > 0) {
+                wp = wp.rotateYaw(MathX.PI_F * 0.5f);
+            } else if (rider.moveStrafing < 0) {
+                wp = wp.rotateYaw(MathX.PI_F * -0.5f);
             }
+
+            x += wp.x * 10;
+            if (!dragon.isYLocked()) y += wp.y * 10;
+            z += wp.z * 10;
+        }
 
 //         lift off from a jump
-            if (entityIsJumping(rider)) {
-                if (!dragon.isFlying()) {
-                    dragon.liftOff();
-                } else {
-                    y += 10;
-                }
-            } else if (dragon.isGoingDown()) {
-                y -= 10;
+        if (dragon.isGoingUp()) {
+            if (!dragon.isFlying()) {
+                dragon.liftOff();
+            } else {
+                y += 10;
             }
-
-            dragon.getMoveHelper().setMoveTo(x, y, z, 1.2);
+        } else if (dragon.isGoingDown()) {
+            y -= 10;
         }
+
+        dragon.getMoveHelper().setMoveTo(x, y, z, speed);
     }
 }

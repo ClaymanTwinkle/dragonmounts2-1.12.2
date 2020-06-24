@@ -161,7 +161,7 @@ public class DragonRenderer extends RenderLiving<EntityTameableDragon> {
         }
     }
 
-    protected void renderEgg(EntityTameableDragon dragon, double x, double y, double z, float pitch, float partialTicks) {
+    private void renderEgg(EntityTameableDragon dragon, double x, double y, double z, float pitch, float partialTicks) {
         // apply egg wiggle
         DragonLifeStageHelper lifeStage = dragon.getLifeStageHelper();
         float tickX = lifeStage.getEggWiggleX();
