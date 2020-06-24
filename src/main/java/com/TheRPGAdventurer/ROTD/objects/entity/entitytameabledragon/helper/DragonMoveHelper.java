@@ -6,8 +6,6 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.entity.ai.EntityMoveHelper;
 import net.minecraft.util.math.Vec3d;
 
-import static net.minecraft.entity.SharedMonsterAttributes.MOVEMENT_SPEED;
-
 public class DragonMoveHelper extends EntityMoveHelper implements PrivateAccessor {
 
     private final EntityTameableDragon dragon;
@@ -32,9 +30,8 @@ public class DragonMoveHelper extends EntityMoveHelper implements PrivateAccesso
             double dist = dragonPos.distanceTo(movePos);
 
             // move towards target if it's far away enough   dragon.width
+            double flySpeed = dragon.getFlySpeed();
             if (dist > dragon.width) {
-                double flySpeed = dragon.getFlySpeed();
-
                 // update velocity to approach target
                 dragon.motionX = dir.x * flySpeed;
                 dragon.motionY = dir.y * flySpeed;
@@ -54,7 +51,7 @@ public class DragonMoveHelper extends EntityMoveHelper implements PrivateAccesso
                 float YAW_SPEED = dragon.getControllingPlayer() != null ? 5 : 15;
                 float newYaw = (float) Math.toDegrees(Math.PI * 2 - Math.atan2(dir.x, dir.z));
                 dragon.rotationYaw = limitAngle(dragon.rotationYaw, newYaw, YAW_SPEED);
-                entity.setAIMoveSpeed((float) (speed * entity.getEntityAttribute(MOVEMENT_SPEED).getAttributeValue()));
+                entity.setAIMoveSpeed((float) flySpeed);
             }
 
             // apply movement

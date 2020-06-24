@@ -39,26 +39,26 @@ import org.apache.logging.log4j.Logger;
 /**
  * Main control class for Forge.
  */
-@Mod(modid=DragonMounts.MODID, name=DragonMounts.NAME, version=DragonMounts.VERSION, useMetadata=true, guiFactory=DragonMounts.GUI_FACTORY)
+@Mod(modid = DragonMounts.MODID, name = DragonMounts.NAME, version = DragonMounts.VERSION, useMetadata = true, guiFactory = DragonMounts.GUI_FACTORY)
 public class DragonMounts {
 
     public static SimpleNetworkWrapper NETWORK_WRAPPER = NetworkRegistry.INSTANCE.newSimpleChannel(DragonMounts.MODID);
 
-    public static final String NAME="Dragon Mounts";
-    public static final String MODID="dragonmounts";
-    public static final String VERSION="@VERSION@";
-    public static final String GUI_FACTORY="com.TheRPGAdventurer.ROTD.DragonMountsConfigGuiFactory";
+    public static final String NAME = "Dragon Mounts";
+    public static final String MODID = "dragonmounts";
+    public static final String VERSION = "@VERSION@";
+    public static final String GUI_FACTORY = "com.TheRPGAdventurer.ROTD.DragonMountsConfigGuiFactory";
 
-    @SidedProxy(serverSide="com.TheRPGAdventurer.ROTD.proxy.ServerProxy", clientSide="com.TheRPGAdventurer.ROTD.proxy.ClientProxy")
+    @SidedProxy(serverSide = "com.TheRPGAdventurer.ROTD.proxy.ServerProxy", clientSide = "com.TheRPGAdventurer.ROTD.proxy.ClientProxy")
     public static ServerProxy proxy;
 
-    @Instance(value=MODID)
+    @Instance(value = MODID)
     public static DragonMounts instance;
 
     private ModMetadata metadata;
     private DragonMountsConfig config;
-    public static CreativeTabs mainTab=new CreativeTab("maintab");
-    public static CreativeTabs armoryTab=new ArmoryTab("armorytab");
+    public static CreativeTabs mainTab = new CreativeTab("maintab");
+    public static CreativeTabs armoryTab = new ArmoryTab("armorytab");
 
     public DragonMountsConfig getConfig() {
         return config;
@@ -71,7 +71,7 @@ public class DragonMounts {
 
     public static DamageSource dragons_fire;
 
-  // Add this field to your main class
+    // Add this field to your main class
     public static final Logger logger = LogManager.getLogger(DragonMounts.MODID);
     public static final LoggerLimit loggerLimit = new LoggerLimit(logger);
 
@@ -79,12 +79,11 @@ public class DragonMounts {
     public void PreInitialization(FMLPreInitializationEvent event) {
         DragonMountsLootTables.registerLootTables();
         MinecraftForge.EVENT_BUS.register(new EventLiving());
-        if (FMLCommonHandler.instance().getSide() == Side.CLIENT)
-        {
-          MinecraftForge.EVENT_BUS.register(IItemColorRegistration.class);
+        if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+            MinecraftForge.EVENT_BUS.register(IItemColorRegistration.class);
         }
-      proxy.PreInitialization(event);
-        metadata=event.getModMetadata();
+        proxy.PreInitialization(event);
+        metadata = event.getModMetadata();
     }
 
     @EventHandler
@@ -115,7 +114,7 @@ public class DragonMounts {
     }
 
     private void initDamageSources() {
-        dragons_fire=new DamageSource("dragons_fire") {
+        dragons_fire = new DamageSource("dragons_fire") {
         };
     }
 }

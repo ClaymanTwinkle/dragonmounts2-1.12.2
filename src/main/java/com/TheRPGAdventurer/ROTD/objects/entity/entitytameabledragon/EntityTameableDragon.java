@@ -87,8 +87,8 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     private static final Logger L = LogManager.getLogger();
     // base attributes
     private static final double BASE_GROUND_SPEED = 0.4;
-    private static final double BASE_AIR_SPEED = 0.9;
-    private static final IAttribute MOVEMENT_SPEED_AIR = new RangedAttribute(null, "generic.movementSpeedAir", 0.9, 0.0, Double.MAX_VALUE).setDescription("Movement Speed Air").setShouldWatch(true);
+    private static final double BASE_AIR_SPEED = 1.2;
+    private static final IAttribute MOVEMENT_SPEED_AIR = new RangedAttribute(null, "generic.movementSpeedAir", BASE_AIR_SPEED, 0.0, Double.MAX_VALUE).setDescription("Movement Speed Air").setShouldWatch(true);
     private static final double BASE_DAMAGE = DragonMountsConfig.BASE_DAMAGE;
     private static final double BASE_ARMOR = DragonMountsConfig.ARMOR;
     private static final double BASE_TOUGHNESS = 30.0D;
@@ -210,7 +210,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
     public double getFlySpeed() {
         double boost = boosting() ? 4 : 1;
-        return getEntityAttribute(EntityTameableDragon.MOVEMENT_SPEED_AIR).getAttributeValue() * boost;
+        return BASE_AIR_SPEED * boost;
     }
 
     public void setControllingWhistle(ItemStack whistle) {
@@ -488,7 +488,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      * Causes this entity to lift off if it can fly.
      */
     public void liftOff() {
-        L.info("==========liftOff");
         if (canFly()) {
             boolean ridden = isBeingRidden();
             // stronger jump for an easier lift-off
