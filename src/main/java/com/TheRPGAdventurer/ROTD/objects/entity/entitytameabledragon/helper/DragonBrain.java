@@ -11,17 +11,11 @@ package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper;
 
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.*;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.air.EntityAIDragonFlight;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.air.EntityAIDragonFollowOwnerElytraFlying;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonFollowOwner;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonHunt;
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonHuntNonTamed;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonWatchIdle;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonWatchLiving;
-import com.TheRPGAdventurer.ROTD.util.EntityClassPredicate;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.ai.*;
-import net.minecraft.entity.monster.IMob;
-import net.minecraft.entity.passive.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathNavigateGround;
@@ -82,26 +76,24 @@ public class DragonBrain extends DragonHelper {
         tasks.addTask(0, new EntityAIDragonCatchOwner(dragon)); // mutex all
         tasks.addTask(1, new EntityAIDragonPlayerControl(dragon)); // mutex all
         tasks.addTask(2, dragon.getAISit()); // mutex 4+1
-        tasks.addTask(3, new EntityAIDragonFollowOwnerElytraFlying(dragon)); // mutex all
-        tasks.addTask(4, new EntityAIMoveTowardsRestriction(dragon, 1)); // mutex 1
-        tasks.addTask(5, new EntityAIDragonMate(dragon, 0.6)); // mutex 2+1
-        tasks.addTask(5, new EntityAIDragonLeapAtTarget(dragon, 0.7F)); // mutex 1
-        tasks.addTask(6, new EntityAIDragonFlight(dragon, 1)); // mutex 1
-        tasks.addTask(6, new EntityAIDragonTempt(dragon, 0.75, false, OreDictionary.getOres("listAllfishraw").stream().map(ItemStack::getItem).collect(Collectors.toSet()))); // mutex 2+1
-        tasks.addTask(2, new EntityAISwimming(dragon)); // mutex 4
-        tasks.addTask(7, new EntityAIAttackMelee(dragon, 1, true)); // mutex 2+1
-        tasks.addTask(9, new EntityAIDragonFollowOwner(dragon, 1, 14, 128)); // mutex 2+1
-        tasks.addTask(9, new EntityAIDragonFollowOwnerElytraFlying(dragon)); // mutex 2+1
-        tasks.addTask(10, new EntityAIWander(dragon, 1)); // mutex 1
+        tasks.addTask(2, new EntityAIDragonSwimming(dragon)); // mutex 4
+        tasks.addTask(3, new EntityAIDragonMate(dragon, 0.6)); // mutex 2+1
+        tasks.addTask(4, new EntityAIDragonLeapAtTarget(dragon, 0.7F)); // mutex 1
+        tasks.addTask(4, new EntityAIDragonAttackMelee(dragon, 1, true)); // mutex 2+1
+        //tasks.addTask(6, new EntityAIDragonFlight(dragon, 1)); // mutex 1
+        tasks.addTask(5, new EntityAIDragonTempt(dragon, 0.75, false, OreDictionary.getOres("listAllfishraw").stream().map(ItemStack::getItem).collect(Collectors.toSet()))); // mutex 2+1
+        tasks.addTask(6, new EntityAIDragonFollowOwner(dragon, 1.5)); // mutex 2+1
+        tasks.addTask(7, new EntityAIDragonFollowParent(dragon, 1.4f)); // mutex 1
+        tasks.addTask(8, new EntityAIMoveTowardsRestriction(dragon, 1)); // mutex 1
+        tasks.addTask(9, new EntityAIWander(dragon, 1)); // mutex 1
+        tasks.addTask(10, new EntityAIDragonWatchLiving(dragon, 16, 0.05f)); // mutex 2
         tasks.addTask(11, new EntityAIDragonWatchIdle(dragon)); // mutex 2
-        tasks.addTask(11, new EntityAIDragonWatchLiving(dragon, 16, 0.05f)); // mutex 2
-        tasks.addTask(12, new EntityAIDragonFollowParent(dragon, 1.4f));
 
-        targetTasks.addTask(2, new EntityAIOwnerHurtByTarget(dragon)); // mutex 1
-        targetTasks.addTask(3, new EntityAIOwnerHurtTarget(dragon)); // mutex 1
-        targetTasks.addTask(4, new EntityAIDragonHurtByTarget(dragon, false)); // mutex 1
-        targetTasks.addTask(5, new EntityAINearestAttackableTarget<>(dragon, EntityLiving.class, 10, false, true, p_apply_1_ -> p_apply_1_ != null && IMob.VISIBLE_MOB_SELECTOR.apply(p_apply_1_)));
-        targetTasks.addTask(5, new EntityAIDragonHunt(dragon, EntityAnimal.class, false, new EntityClassPredicate(EntitySheep.class, EntityPig.class, EntityChicken.class, EntityRabbit.class, EntityLlama.class))); // mutex 1
+        targetTasks.addTask(0, new EntityAIOwnerHurtByTarget(dragon)); // mutex 1
+        targetTasks.addTask(1, new EntityAIOwnerHurtTarget(dragon)); // mutex 1
+        targetTasks.addTask(2, new EntityAIDragonHurtByTarget(dragon, false)); // mutex 1
+        targetTasks.addTask(3, new EntityAIDragonHuntNonTamed(dragon)); // mutex 1
+        targetTasks.addTask(4, new EntityAIDragonNearestAttackableTarget(dragon));
     }
 }
 

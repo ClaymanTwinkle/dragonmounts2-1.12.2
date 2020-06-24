@@ -20,6 +20,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.Path;
@@ -357,6 +358,12 @@ public class GuiDragonDebug extends Gui {
         text.setColor(YELLOW);
         text.println("AI tasks");
         text.setColor(WHITE);
+
+        for (EntityAITasks.EntityAITaskEntry taskEntry : dragonServer.tasks.taskEntries) {
+            if(taskEntry.using) {
+                text.println("" + taskEntry.action.getClass().getSimpleName());
+            }
+        }
     }
     
     private void renderProbe() {

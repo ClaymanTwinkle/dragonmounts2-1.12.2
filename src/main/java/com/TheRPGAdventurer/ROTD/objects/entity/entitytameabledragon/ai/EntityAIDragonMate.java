@@ -32,6 +32,7 @@ public class EntityAIDragonMate extends EntityAIDragonBase {
     public EntityAIDragonMate(EntityTameableDragon dragon, double speed) {
         super(dragon);
         this.speed = speed;
+        setMutexBits(1+2);
     }
 
     /**

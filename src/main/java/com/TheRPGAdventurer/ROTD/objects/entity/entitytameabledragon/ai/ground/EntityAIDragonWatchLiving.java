@@ -11,9 +11,8 @@ package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground;
 
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.EntityAIDragonBase;
-
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.AxisAlignedBB;
 
 /**
@@ -43,13 +42,8 @@ public class EntityAIDragonWatchLiving extends EntityAIDragonBase {
             return false;
         }
         
-        watchedEntity = null;
-        
-        if (watchedEntity == null) {
-            AxisAlignedBB aabb = dragon.getEntityBoundingBox().grow(maxDist, dragon.height, maxDist);
-            Class clazz = EntityLiving.class;
-            watchedEntity = world.findNearestEntityWithinAABB(clazz, aabb, dragon);
-        }
+        AxisAlignedBB aabb = dragon.getEntityBoundingBox().grow(maxDist, dragon.height, maxDist);
+        watchedEntity = world.findNearestEntityWithinAABB(EntityLivingBase.class, aabb, dragon);
 
         if (watchedEntity != null) {
             // don't try to look at the rider when being ridden
@@ -71,7 +65,7 @@ public class EntityAIDragonWatchLiving extends EntityAIDragonBase {
      */
     @Override
     public boolean shouldContinueExecuting() {
-
+        if (dragon.getControllingPlayer() != null) return false;
         if (!watchedEntity.isEntityAlive()) return false;
         if (dragon.getDistanceSq(watchedEntity) > maxDist * maxDist) return false;
         else return watchTicks > 2;
@@ -99,10 +93,8 @@ public class EntityAIDragonWatchLiving extends EntityAIDragonBase {
      */
     @Override
     public void updateTask() {
-        double lx = watchedEntity.posX;
-        double ly = watchedEntity.posY + watchedEntity.getEyeHeight();
-        double lz = watchedEntity.posZ;
-        dragon.getLookHelper().setLookPosition(lx, ly, lz, 10, dragon.getVerticalFaceSpeed());
+        this.dragon.getLookHelper().setLookPositionWithEntity(this.watchedEntity, (float)(this.dragon.getHorizontalFaceSpeed() + 20), (float)this.dragon.getVerticalFaceSpeed());
+
         watchTicks--;
     }
 }

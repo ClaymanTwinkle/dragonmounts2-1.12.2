@@ -20,15 +20,13 @@ import net.minecraft.item.ItemStack;
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class EntityAIDragonCatchOwner extends EntityAIDragonBase {
-
-    protected EntityPlayer owner = (EntityPlayer) dragon.getOwner();
-
     public EntityAIDragonCatchOwner(EntityTameableDragon dragon) {
         super(dragon);
     }
 
     @Override
     public boolean shouldExecute() {
+        EntityPlayer owner = (EntityPlayer) dragon.getOwner();
         if (owner == null) {
             return false;
         }
@@ -57,6 +55,10 @@ public class EntityAIDragonCatchOwner extends EntityAIDragonBase {
             return false;
         }
 
+        if(owner.isRiding()) {
+           return false;
+        }
+
         // don't catch if owner has a working Elytra equipped
         // note: isBroken() is misleading, it actually checks if the items is usable
         ItemStack itemStack = owner.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
@@ -68,12 +70,11 @@ public class EntityAIDragonCatchOwner extends EntityAIDragonBase {
     }
 
     @Override
-    public boolean shouldContinueExecuting() {
-        return shouldExecute();
-    }
-
-    @Override
     public void updateTask() {
+        EntityPlayer owner = (EntityPlayer) dragon.getOwner();
+
+        if(owner == null) return;
+
         // catch owner in flight if possible
         if (!dragon.isFlying()) {
             dragon.liftOff();
@@ -81,13 +82,13 @@ public class EntityAIDragonCatchOwner extends EntityAIDragonBase {
 
         // don't catch if owner is too far away
         double followRange = getFollowRange();
-        dragon.setBoosting(dragon.getDistance(owner) < 1);
+        dragon.setBoosting(dragon.getDistance(owner) > dragon.width);
         if (dragon.getDistance(owner) < followRange) {
             // mount owner if close enough, otherwise move to owner
-            if (dragon.getDistance(owner) <= dragon.width || dragon.getDistance(owner) <= dragon.height && !owner.isSneaking() && dragon.isFlying()) {
+            if ((dragon.getDistance(owner) <= dragon.width || dragon.getDistance(owner) <= dragon.height) && !owner.isSneaking() && !owner.isRiding() && dragon.isFlying()) {
                 owner.startRiding(dragon);
             } else {
-                dragon.getNavigator().tryMoveToEntityLiving(owner, 1);
+                dragon.getNavigator().tryMoveToEntityLiving(owner, 10);
             }
         }
     }

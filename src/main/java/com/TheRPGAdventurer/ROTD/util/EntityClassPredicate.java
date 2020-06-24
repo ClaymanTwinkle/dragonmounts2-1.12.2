@@ -25,6 +25,7 @@ public class EntityClassPredicate implements Predicate<Entity> {
     
     private final Set<Class> classSet;
     
+    @SafeVarargs
     public EntityClassPredicate(Class<? extends Entity>... c) {
         classSet = Collections.unmodifiableSet(new HashSet<Class>(Arrays.asList(c)));
     }

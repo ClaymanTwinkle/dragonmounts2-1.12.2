@@ -13,10 +13,7 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTamea
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.EntityAIDragonBase;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.pathfinding.PathNavigate;
-import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -29,26 +26,18 @@ import net.minecraft.world.World;
  */
 public class EntityAIDragonFollowOwner extends EntityAIDragonBase {
 
-    private Entity owner;
     private World world;
     private double speed;
-    private PathNavigate nav;
     private int updateTicks;
-    private float maxDist;
-    private float minDist;
     private int timeToRecalcPath;
-    private boolean avoidWater;
 
-    public EntityAIDragonFollowOwner(EntityTameableDragon dragon, double speed, float minDist, float maxDist) {
+    public EntityAIDragonFollowOwner(EntityTameableDragon dragon, double speed) {
         super(dragon);
         this.speed = speed;
-        this.minDist = minDist;
-        this.maxDist = maxDist;
 
-        nav = dragon.getNavigator();
         world = dragon.world;
 
-        setMutexBits(1);
+        setMutexBits(1+2);
     }
 
     /**
@@ -56,27 +45,13 @@ public class EntityAIDragonFollowOwner extends EntityAIDragonBase {
      */
     @Override
     public boolean shouldExecute() {
-        Entity ownerCurrent = dragon.getOwner();
+        EntityPlayer ownerCurrent = (EntityPlayer) dragon.getOwner();
 
         if (ownerCurrent == null) return false;
-        if (ownerCurrent instanceof EntityPlayer) {
-            if (((EntityPlayer) ownerCurrent).isSpectator()) return false;
-        }
+        if (ownerCurrent.isSpectator()) return false;
         if (dragon.isSitting()) return false;
-        owner = ownerCurrent;
 
-        return dragon.getDistance(ownerCurrent) > minDist && dragon.isOldEnoughToBreathe();
-    }
-
-    /**
-     * Returns whether an in-progress EntityAIBase should continue executing
-     */
-    @Override
-    public boolean shouldContinueExecuting() {
-
-        if (nav.noPath()) return false;
-        if (dragon.isSitting()) return false;
-        return dragon.getDistance(owner) < minDist;
+        return dragon.getDistance(ownerCurrent) > dragon.width * 4 && !dragon.isEgg();
     }
 
     /**
@@ -86,17 +61,6 @@ public class EntityAIDragonFollowOwner extends EntityAIDragonBase {
     public void startExecuting() {
         updateTicks = 0;
         this.timeToRecalcPath = 0;
-
-        //        avoidWater = dragon.getNavigator().getAvoidsWater();
-        //        dragon.getNavigator().setAvoidsWater(false);
-        // guess, based on vanilla EntityAIFollowOwner
-        PathNavigate pathNavigate = dragon.getNavigator();
-        if (pathNavigate instanceof PathNavigateGround) {
-            PathNavigateGround pathNavigateGround = (PathNavigateGround) pathNavigate;
-            this.avoidWater = ((PathNavigateGround) dragon.getNavigator()).getCanSwim();
-            dragon.getBrain().setAvoidsWater(avoidWater);
-        }
-
     }
 
     /**
@@ -104,13 +68,7 @@ public class EntityAIDragonFollowOwner extends EntityAIDragonBase {
      */
     @Override
     public void resetTask() {
-        owner = null;
-        nav.clearPath();
-        PathNavigate pathNavigate = dragon.getNavigator();
-        if (pathNavigate instanceof PathNavigateGround) {
-            PathNavigateGround pathNavigateGround = (PathNavigateGround) pathNavigate;
-            dragon.getBrain().setAvoidsWater(avoidWater);  // best guess, based on vanilla EntityAIFollowOwner
-        }
+        dragon.getNavigator().clearPath();
     }
 
     /**
@@ -118,6 +76,8 @@ public class EntityAIDragonFollowOwner extends EntityAIDragonBase {
      */
     @Override
     public void updateTask() {
+        EntityPlayer owner = (EntityPlayer) dragon.getOwner();
+        if(owner == null) return;
         // don't move when sitting
         if (dragon.isSitting()) return;
         if (dragon.getControllingPlayer() != null) return;
@@ -133,18 +93,18 @@ public class EntityAIDragonFollowOwner extends EntityAIDragonBase {
         if (dragon.getLeashed()) return;
 
         // finish task if it can move to the owner
-        if (nav.tryMoveToEntityLiving(owner, speed)) return;
+        if (dragon.getNavigator().tryMoveToEntityLiving(owner, speed)) return;
 
         if (!this.dragon.isSitting()) {
             if (--this.timeToRecalcPath <= 0) {
                 this.timeToRecalcPath = 10;
 
-                if (!dragon.getNavigator().tryMoveToEntityLiving(this.owner, this.speed)) {
+                if (!dragon.getNavigator().tryMoveToEntityLiving(owner, this.speed)) {
                     if (!this.dragon.getLeashed() && !this.dragon.isRiding()) {
-                        if (this.dragon.getDistanceSq(this.owner) >= 144.0D) {
-                            int i = MathHelper.floor(this.owner.posX) - 2;
-                            int j = MathHelper.floor(this.owner.posZ) - 2;
-                            int k = MathHelper.floor(this.owner.getEntityBoundingBox().minY);
+                        if (this.dragon.getDistanceSq(owner) >= dragon.width * 30) {
+                            int i = MathHelper.floor(owner.posX) - 2;
+                            int j = MathHelper.floor(owner.posZ) - 2;
+                            int k = MathHelper.floor(owner.getEntityBoundingBox().minY);
 
                             for (int l = 0; l <= 4; ++l) {
                                 for (int i1 = 0; i1 <= 4; ++i1) {

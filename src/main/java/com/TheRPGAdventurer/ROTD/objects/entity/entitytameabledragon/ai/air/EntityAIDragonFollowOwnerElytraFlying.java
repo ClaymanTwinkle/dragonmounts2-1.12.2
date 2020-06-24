@@ -18,15 +18,13 @@ import net.minecraft.entity.player.EntityPlayer;
  */
 public class EntityAIDragonFollowOwnerElytraFlying extends EntityAIDragonBase {
 
-    protected EntityPlayer owner = (EntityPlayer) dragon.getOwner();
-
     public EntityAIDragonFollowOwnerElytraFlying(EntityTameableDragon dragon) {
         super(dragon);
     }
 
     @Override
     public boolean shouldExecute() {
-
+        EntityPlayer owner = (EntityPlayer) dragon.getOwner();
         if (!dragon.canFly())
             return false;
 
@@ -56,6 +54,7 @@ public class EntityAIDragonFollowOwnerElytraFlying extends EntityAIDragonBase {
 
     @Override
     public void updateTask() {
+        EntityPlayer owner = (EntityPlayer) dragon.getOwner();
         // liffoff
         if (!dragon.isFlying())
             dragon.liftOff();

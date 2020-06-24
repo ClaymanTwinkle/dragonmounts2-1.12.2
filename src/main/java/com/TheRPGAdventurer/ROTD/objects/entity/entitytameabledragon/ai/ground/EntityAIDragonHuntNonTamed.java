@@ -10,26 +10,26 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground;
 
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
-import com.google.common.base.Predicate;
+import com.TheRPGAdventurer.ROTD.util.EntityClassPredicate;
 import net.minecraft.entity.ai.EntityAITargetNonTamed;
+import net.minecraft.entity.passive.*;
 
 /**
  *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
-public class EntityAIDragonHunt extends EntityAITargetNonTamed {
+public class EntityAIDragonHuntNonTamed extends EntityAITargetNonTamed {
     
     private final EntityTameableDragon dragon;
 
-    public EntityAIDragonHunt(EntityTameableDragon dragon, Class classTarget,
-            boolean checkSight, Predicate targetSelector) {
-        super(dragon, classTarget, checkSight, targetSelector);
+    public EntityAIDragonHuntNonTamed(EntityTameableDragon dragon) {
+        super(dragon, EntityAnimal.class, false, new EntityClassPredicate(EntitySheep.class, EntityPig.class, EntityChicken.class, EntityRabbit.class, EntityLlama.class));
         this.dragon = dragon;
     }
 
     @Override
     public boolean shouldExecute() {
-        return dragon.isAdult() && super.shouldExecute() && dragon.getHunger() < 50;
+        return dragon.isAdult() && dragon.getHunger() < 50 && super.shouldExecute();
     }
     
 }

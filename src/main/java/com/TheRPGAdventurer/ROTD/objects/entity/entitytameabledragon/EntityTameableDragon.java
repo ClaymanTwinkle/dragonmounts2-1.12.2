@@ -1171,10 +1171,17 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
 
         if (attacked) {
             applyEnchantments(this, entityIn);
+            if (!entityIn.isEntityAlive()) {
+                if (entityIn instanceof EntityLivingBase) {
+                    setHunger(getHunger() + (int)(((EntityLivingBase)entityIn).getMaxHealth()/2));
+                }
+            }
         }
 
         if (getBreedType() == EnumDragonBreed.WITHER) {
-            ((EntityLivingBase) entityIn).addPotionEffect(new PotionEffect(MobEffects.WITHER, 200));
+            if (entityIn instanceof EntityLivingBase) {
+                ((EntityLivingBase) entityIn).addPotionEffect(new PotionEffect(MobEffects.WITHER, 200));
+            }
         }
 
         return attacked;
