@@ -60,7 +60,7 @@ public class ContainerDragon extends Container {
 		this.addSlotToContainer(new Slot(dragonInv, 2, 8, 53) {
 
 			public boolean isItemValid(ItemStack stack) {
-				return dragon.getIntFromArmor(stack) != 0 && dragon.isOldEnoughToBreathe();
+				return dragon.getInventoryHelper().getIntFromArmor(stack) != 0 && dragon.isOldEnoughToBreathe();
 			}
 
 		});

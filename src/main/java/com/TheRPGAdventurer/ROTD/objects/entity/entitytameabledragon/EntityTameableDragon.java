@@ -11,13 +11,11 @@ package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon;
 
 import com.TheRPGAdventurer.ROTD.DragonMounts;
 import com.TheRPGAdventurer.ROTD.DragonMountsConfig;
-import com.TheRPGAdventurer.ROTD.client.gui.GuiHandler;
 import com.TheRPGAdventurer.ROTD.client.model.dragon.anim.DragonAnimator;
 import com.TheRPGAdventurer.ROTD.inits.ModBlocks;
-import com.TheRPGAdventurer.ROTD.inits.ModItems;
 import com.TheRPGAdventurer.ROTD.inits.ModSounds;
 import com.TheRPGAdventurer.ROTD.inits.ModTools;
-import com.TheRPGAdventurer.ROTD.objects.blocks.BlockDragonBreedEgg;
+import com.TheRPGAdventurer.ROTD.objects.entity.DragonProcessInteractUtils;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitycarriage.EntityCarriage;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.ground.EntityAIDragonSit;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.ai.path.PathNavigateFlying;
@@ -29,7 +27,6 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.helper.util
 import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonAmulet;
 import com.TheRPGAdventurer.ROTD.objects.items.ItemDragonEssence;
 import com.TheRPGAdventurer.ROTD.objects.tileentities.TileEntityDragonShulker;
-import com.TheRPGAdventurer.ROTD.util.DMUtils;
 import com.TheRPGAdventurer.ROTD.util.math.MathX;
 import com.TheRPGAdventurer.ROTD.util.reflection.PrivateAccessor;
 import net.minecraft.block.Block;
@@ -44,7 +41,6 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
@@ -792,9 +788,13 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         // return default breed name otherwise
         String entName = EntityList.getEntityString(this);
         String breedName = getBreed().getSkin().toLowerCase();
-        ITextComponent nameAlbino = new TextComponentTranslation("entity." + entName + "." + "albino." + breedName + ".name");
-        ITextComponent name = new TextComponentTranslation("entity." + entName + "." + breedName + ".name");
-        return name;
+        return new TextComponentTranslation("entity." + entName + "." + breedName + ".name");
+    }
+
+    @Nonnull
+    @Override
+    public String getName() {
+        return getDisplayName().getFormattedText();
     }
 
     /**
@@ -837,6 +837,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     /**
      * Plays living's sound at its position
      */
+    @Override
     public void playLivingSound() {
         SoundEvent sound = getLivingSound();
         if (sound == null || (!isEgg() && isUsingBreathWeapon())) {
@@ -849,6 +850,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     /**
      * Get number of ticks, at least during which the living entity will be silent.
      */
+    @Override
     public int getTalkInterval() {
         return 240;
     }
@@ -1061,10 +1063,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         return getBreedHelper().getDragonAmulet();
     }
 
-    private Item getShearItem() {
-        return getBreedHelper().getShearItem();
-    }
-
     /**
      * Returns the entity's health relative to the maximum health.
      *
@@ -1176,6 +1174,10 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         if (getBreedType() == EnumDragonBreed.WITHER) {
             if (entityIn instanceof EntityLivingBase) {
                 ((EntityLivingBase) entityIn).addPotionEffect(new PotionEffect(MobEffects.WITHER, 200));
+            }
+        } else if(getBreedType() == EnumDragonBreed.ZOMBIE) {
+            if (entityIn instanceof EntityLivingBase) {
+                ((EntityLivingBase) entityIn).addPotionEffect(new PotionEffect(MobEffects.POISON, 200));
             }
         }
 
@@ -1335,10 +1337,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             this.renderYawOffset = this.rotationYaw;
         }
     }
-//
-//    public boolean canBeSteered() {
-//        return true;
-//    }
 
     @Override
     public boolean canBeSteered() {
@@ -1384,9 +1382,9 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      */
     @Nullable
     public Entity getRidingCarriage() {
-        List<Entity> entity = this.getPassengers().isEmpty() ? null : this.getPassengers();
+        Entity entity = this.getPassengers().isEmpty() ? null : this.getPassengers().get(0);
         if (entity instanceof EntityCarriage) {
-            return (EntityCarriage) entity;
+            return entity;
         } else {
             return null;
         }
@@ -1407,7 +1405,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
      *
      * @param player EntityPlayer
      */
-    private void setRidingPlayer(EntityPlayer player) {
+    public void setRidingPlayer(EntityPlayer player) {
         L.trace("setRidingPlayer({})", player.getName());
         player.rotationYaw = rotationYaw;
         player.rotationPitch = rotationPitch;
@@ -1656,10 +1654,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         }
     }
 
-    private boolean isSheared() {
-        return getLootHelper().isSheared();
-    }
-
     /**
      * make a dragon sheared if set to true
      */
@@ -1678,9 +1672,9 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         this.setSheared(true);
         int i = 2 + this.rand.nextInt(3);
 
-        List<ItemStack> ret = new ArrayList<ItemStack>();
+        List<ItemStack> ret = new ArrayList<>(i);
         for (int j = 0; j < i; ++j)
-            ret.add(new ItemStack(getShearItem()));
+            ret.add(new ItemStack(getBreedHelper().getShearItem()));
 
         ticksShear = 3000;
 
@@ -1733,7 +1727,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         } else return true;
     }
 
-    private void eatEvent(Item item) {
+    public void eatEvent(Item item) {
         playSound(this.getBreed().getEatSound(), 1f, 0.75f);
         double motionX = this.getRNG().nextGaussian() * 0.07D;
         double motionY = this.getRNG().nextGaussian() * 0.07D;
@@ -1745,158 +1739,12 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         }
     }
 
-    private static boolean hasInteractItemsEquipped(EntityPlayer player) {
-        return DMUtils.hasEquippedUsable(player)
-                || DMUtils.hasEquipped(player, ModTools.diamond_shears)
-                || DMUtils.hasEquipped(player, ModItems.dragon_wand)
-                || DMUtils.hasEquipped(player, ModItems.dragon_whistle)
-                || DMUtils.hasEquipped(player, ModItems.Amulet)
-                || DMUtils.hasEquipped(player, Items.BONE)
-                || DMUtils.hasEquipped(player, Items.STICK)
-                || DMUtils.hasEquippedFood(player);
-    }
-
     /**
      * Called when a player right clicks a mob. e.g. gets milk from a cow, gets into the saddle on a pig, ride a dragon.
      */
     @Override
     public boolean processInteract(EntityPlayer player,@Nullable EnumHand hand) {
-        ItemStack stack = player.getHeldItem(hand);
-
-        /*
-         * Turning it to block
-         */
-        if (isEgg() && player.isSneaking()) {
-            world.playSound(player, getPosition(), SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, SoundCategory.PLAYERS, 0.5F, 1);
-            world.setBlockState(getPosition(), BlockDragonBreedEgg.DRAGON_BREED_EGG.getStateFromMeta(getBreedType().getMeta()));
-            setDead();
-            return true;
-        }
-
-        /*
-         * Dragon Riding The Player
-         */
-        if (isAllowed(player) && !isSitting() && this.isBaby() && !hasInteractItemsEquipped(player) && !player.isSneaking() && player.getPassengers().size() < 3) {
-            this.setAttackTarget(null);
-            this.getNavigator().clearPath();
-            this.getAISit().setSitting(false);
-            this.startRiding(player, true);
-            return true;
-        }
-
-        // prevent doing any interactions when a hatchling rides you, the hitbox could block the player's raytraceresult for rightclick
-        if (player.isPassenger(this)) return false;
-
-        if (this.isServer() && !this.isEgg()) {
-            if (isAllowed(player)) {
-                /*
-                 * Player Riding the Dragon
-                 */
-                if (this.isTamed() && this.isSaddled() && (this.isAdult() || this.isJuvenile()) && !player.isSneaking() && !hasInteractItemsEquipped(player) && this.getPassengers().size() < 3) {
-                    this.setRidingPlayer(player);
-                }
-
-                /*
-                 * GUI
-                 */
-                if (player.isSneaking() && !hasInteractItemsEquipped(player)) {
-                    // Dragon Inventory
-                    this.openGUI(player, GuiHandler.GUI_DRAGON);
-                }
-            }
-
-            /*
-             * Sit
-             */
-            if (this.isTamed() && (DMUtils.hasEquipped(player, Items.STICK) || DMUtils.hasEquipped(player, Items.BONE)) && this.onGround) {
-                this.getAISit().setSitting(!this.isSitting());
-                this.getNavigator().clearPath();
-            }
-        }
-
-        /*
-         * Consume
-         */
-        if (!stack.isEmpty() && stack.getItem() instanceof ItemFood) {
-            ItemFood food = (ItemFood) stack.getItem();
-            if (food.isWolfsFavoriteMeat() ||
-                    DMUtils.hasEquipped(player, Items.PORKCHOP) ||
-                    DMUtils.hasEquipped(player, Items.COOKED_PORKCHOP) ||
-                    DMUtils.hasEquipped(player, Items.BEEF) ||
-                    DMUtils.hasEquipped(player, Items.CHICKEN) ||
-                    DMUtils.hasEquipped(player, Items.COOKED_CHICKEN) ||
-                    DMUtils.hasEquipped(player, Items.COOKED_BEEF) ||
-                    DMUtils.hasEquipped(player, Items.RABBIT) ||
-                    DMUtils.hasEquipped(player, Items.COOKED_RABBIT) ||
-                    DMUtils.hasEquipped(player, Items.MUTTON) ||
-                    DMUtils.hasEquipped(player, Items.COOKED_MUTTON) ||
-                    DMUtils.hasEquipped(player, Items.FISH) ||
-                    DMUtils.hasEquipped(player, Items.COOKED_FISH) ||
-                    DMUtils.hasEquipped(player, Items.ROTTEN_FLESH) ||
-                    DMUtils.hasEquippedOreDicFish(player)) {
-
-                // Taming
-                if (!this.isTamed()) {
-                    consumeItemFromStack(player, stack);
-                    eatEvent(stack.getItem());
-                    tamedFor(player, this.getRNG().nextInt(4) == 0);
-                    return true;
-                }
-
-                //  hunger
-                if (this.getHunger() < 100) {
-                    consumeItemFromStack(player, stack);
-                    eatEvent(stack.getItem());
-                    setHunger(this.getHunger() + (DMUtils.getFoodPoints(player)));
-                    return true;
-                }
-            }
-
-            // Mate
-            if ((DMUtils.hasEquipped(player, getBreed().getBreedingItem()) || DMUtils.hasEquippedOreDicFish(player)) && this.isAdult() && !this.isInLove()) {
-                setInLove(player);
-                eatEvent(stack.getItem());
-                consumeItemFromStack(player, stack);
-                return true;
-            }
-
-            // Stop Growth
-            if (DMUtils.hasEquipped(player, getBreed().getShrinkingFood()) && !isGrowthPaused() && isAllowed(player)) {
-                setGrowthPaused(true);
-                eatEvent(stack.getItem());
-                playSound(SoundEvents.ENTITY_PLAYER_BURP, 1f, 0.8F);
-                player.sendStatusMessage(new TextComponentTranslation("dragon.growth.paused"), true);
-                consumeItemFromStack(player, stack);
-                return true;
-            }
-
-            // Continue growth
-            if (DMUtils.hasEquipped(player, getBreed().getGrowingFood()) && isGrowthPaused() && isAllowed(player)) {
-                setGrowthPaused(false);
-                eatEvent(stack.getItem());
-                playSound(SoundEvents.ENTITY_PLAYER_BURP, 1, 0.8F);
-                consumeItemFromStack(player, stack);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Credits: AlexThe 666 Ice and Fire
-     */
-    private void openGUI(EntityPlayer playerEntity, int guiId) {
-        if (!isClient() && (!this.isPassenger(playerEntity))) {
-            playerEntity.openGui(DragonMounts.instance, guiId, this.world, this.getEntityId(), 0, 0);
-        }
-    }
-
-    /**
-     * Credits: AlexThe 666 Ice and Fire
-     */
-    public int getIntFromArmor(ItemStack stack) {
-        return getInventoryHelper().getIntFromArmor(stack);
+        return DragonProcessInteractUtils.processInteract(this, player, hand);
     }
 }
 

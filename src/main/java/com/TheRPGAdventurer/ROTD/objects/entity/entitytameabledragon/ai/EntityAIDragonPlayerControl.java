@@ -53,8 +53,8 @@ public class EntityAIDragonPlayerControl extends EntityAIDragonBase {
         double speed = dragon.getFlySpeed();
 
         if (dragon.getBreedType() == EnumDragonBreed.SYLPHID) {
-            PotionEffect watereffect = new PotionEffect(MobEffects.WATER_BREATHING, 200);
-            if (!rider.isPotionActive(watereffect.getPotion()) && rider.isInWater()) { // If the Potion isn't currently active,
+            if (!rider.isPotionActive(MobEffects.WATER_BREATHING) && rider.isInWater()) { // If the Potion isn't currently active,
+                PotionEffect watereffect = new PotionEffect(MobEffects.WATER_BREATHING, 200);
                 rider.addPotionEffect(watereffect); // Apply a copy of the PotionEffect to the player
             }
         }

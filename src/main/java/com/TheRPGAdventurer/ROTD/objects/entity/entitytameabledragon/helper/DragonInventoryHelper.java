@@ -145,7 +145,7 @@ public class DragonInventoryHelper extends DragonHelper {
 
                 DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, chest_left.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !chest_left.isEmpty() ? 1 : 0));
 
-                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, dragon.getIntFromArmor(dragonInv.getStackInSlot(2))));
+                DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, getIntFromArmor(dragonInv.getStackInSlot(2))));
 
                 DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
 
@@ -192,7 +192,7 @@ public class DragonInventoryHelper extends DragonHelper {
 
                     DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, chest.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !chest.isEmpty() ? 1 : 0));
 
-                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, dragon.getIntFromArmor(dragonInv.getStackInSlot(2))));
+                    DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, getIntFromArmor(dragonInv.getStackInSlot(2))));
 
                     DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
 
@@ -236,8 +236,8 @@ public class DragonInventoryHelper extends DragonHelper {
         ItemStack banner3 = dragonInv.getStackInSlot(33);
         ItemStack banner4 = dragonInv.getStackInSlot(34);
         ItemStack armorStack = dragonInv.getStackInSlot(2);
-        int armor = dragon.getIntFromArmor(dragonInv.getStackInSlot(2));
-        int armor1 = dragon.getIntFromArmor(dragonInv.getStackInSlot(2));
+        int armor = getIntFromArmor(dragonInv.getStackInSlot(2));
+        int armor1 = getIntFromArmor(dragonInv.getStackInSlot(2));
 
         if (saddle.getItem() == Items.SADDLE && !saddle.isEmpty() && !isSaddled() && dragon.isOldEnoughToBreathe()) {
             this.setSaddled(true);
@@ -261,7 +261,7 @@ public class DragonInventoryHelper extends DragonHelper {
         if (dragon.isServer()) {
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 0, saddle.getItem() == Items.SADDLE && !saddle.isEmpty() ? 1 : 0));
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 1, leftChestforInv.getItem() == Item.getItemFromBlock(Blocks.CHEST) && !leftChestforInv.isEmpty() ? 1 : 0));
-            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, dragon.getIntFromArmor(this.dragonInv.getStackInSlot(2))));
+            DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 2, getIntFromArmor(this.dragonInv.getStackInSlot(2))));
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner1.getItem() == Items.BANNER && !banner1.isEmpty() ? 1 : 0));
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 32, banner2.getItem() == Items.BANNER && !banner2.isEmpty() ? 1 : 0));
             DragonMounts.NETWORK_WRAPPER.sendToServer(new MessageDragonInventory(dragon.getEntityId(), 31, banner3.getItem() == Items.BANNER && !banner3.isEmpty() ? 1 : 0));
