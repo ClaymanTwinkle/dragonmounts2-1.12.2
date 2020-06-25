@@ -32,7 +32,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class BreathWeaponPoison extends BreathWeapon implements PrivateAccessor {
 
-    private int poisonDuration = 10 * 10;
+    private static final int POISON_DURATION = 10 * 10;
 
     public BreathWeaponPoison(EntityTameableDragon i_dragon) {
         super(i_dragon);
@@ -46,6 +46,7 @@ public class BreathWeaponPoison extends BreathWeapon implements PrivateAccessor 
      * @param currentHitDensity
      * @return the updated block hit density
      */
+    @Override
     public BreathAffectedBlock affectBlock(World world, Vec3i blockPosition, BreathAffectedBlock currentHitDensity) {
         checkNotNull(world);
         checkNotNull(blockPosition);
@@ -58,15 +59,15 @@ public class BreathWeaponPoison extends BreathWeapon implements PrivateAccessor 
         Random rand = new Random();
 
         if (!world.isRemote) {
-            EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
-            entityareaeffectcloud.setOwner(this.dragon);
-            entityareaeffectcloud.setRadius(1.3F);
-            entityareaeffectcloud.setDuration(600);
-            entityareaeffectcloud.setRadiusPerTick((1.0F - entityareaeffectcloud.getRadius()) / (float) entityareaeffectcloud.getDuration());
-            entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.POISON, poisonDuration));
-
-            entityareaeffectcloud.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
             if (!block.isAir(iBlockState, world, blockPos) && rand.nextInt(500) == 1) {
+                EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                entityareaeffectcloud.setOwner(this.dragon);
+                entityareaeffectcloud.setRadius(1.3F);
+                entityareaeffectcloud.setDuration(600);
+                entityareaeffectcloud.setRadiusPerTick((1.0F - entityareaeffectcloud.getRadius()) / (float) entityareaeffectcloud.getDuration());
+                entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.POISON, POISON_DURATION));
+                entityareaeffectcloud.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+
                 world.spawnEntity(entityareaeffectcloud);
             }
         }
@@ -82,6 +83,7 @@ public class BreathWeaponPoison extends BreathWeapon implements PrivateAccessor 
      * @param currentHitDensity the hit density
      * @return the updated hit density; null if the entity is dead, doesn't exist, or otherwise not affected
      */
+    @Override
     public BreathAffectedEntity affectEntity(World world, Integer entityID, BreathAffectedEntity currentHitDensity) {
         checkNotNull(world);
         checkNotNull(entityID);

@@ -1,5 +1,8 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weapons;
 
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedBlock;
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -9,18 +12,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-
-import java.util.Random;
-
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedBlock;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedEntity;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -57,11 +53,6 @@ public class BreathWeaponHydro extends BreathWeapon {
         IBlockState iBlockState = world.getBlockState(blockPos);
         Block block = iBlockState.getBlock();
 
-        Random rand = new Random();
-        BlockPos sideToIgnite = blockPos.offset(EnumFacing.UP);
-        // if (DragonMountsConfig.canBreathSetIce ) {
-        // world.setBlockState(sideToIgnite, Blocks.SNOW_LAYER.getDefaultState());} else
-
         world.spawnParticle(EnumParticleTypes.WATER_SPLASH, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 1.0D,
                 4.0D, 1.0D);
 
@@ -69,21 +60,15 @@ public class BreathWeaponHydro extends BreathWeapon {
             world.playSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH,
                     SoundCategory.BLOCKS, 0.7f, 1.0f, false);
             world.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState());
-        }
-
-        if (block == Blocks.FLOWING_LAVA) {
+        } else if (block == Blocks.FLOWING_LAVA) {
             world.playSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH,
                     SoundCategory.BLOCKS, 0.7f, 1.0f, false);
             world.setBlockState(blockPos, Blocks.OBSIDIAN.getDefaultState());
-        }
-
-        if (block == Blocks.FIRE) {
+        } else if (block == Blocks.FIRE) {
             world.playSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH,
                     SoundCategory.BLOCKS, 0.7f, 1.0f, false);
             world.setBlockState(blockPos, Blocks.AIR.getDefaultState());
-        }
-
-        if (block == Blocks.FARMLAND) {
+        } else if (block == Blocks.FARMLAND) {
             Blocks.FARMLAND.isFertile(world, blockPos);
         }
 
@@ -115,13 +100,11 @@ public class BreathWeaponHydro extends BreathWeapon {
         final float DAMAGE_PER_HIT_DENSITY = HYDRO_DAMAGE;
         float hitDensity = currentHitDensity.getHitDensity();
 
-        if (entity instanceof EntityLivingBase) {
-            EntityLivingBase entity1 = (EntityLivingBase) entity;
-            if (entity1.isPotionActive(MobEffects.WATER_BREATHING)) {
-                return null;
-            } else {
-                entity1.attackEntityFrom(DamageSource.causeMobDamage(dragon), hitDensity * DAMAGE_PER_HIT_DENSITY);
-            }
+        EntityLivingBase entityLivingBase = (EntityLivingBase) entity;
+        if (entityLivingBase.isPotionActive(MobEffects.WATER_BREATHING)) {
+            return null;
+        } else {
+            entityLivingBase.attackEntityFrom(DamageSource.causeMobDamage(dragon), hitDensity * DAMAGE_PER_HIT_DENSITY);
         }
         triggerDamageExceptions(entity, hitDensity * DAMAGE_PER_HIT_DENSITY, entityID, currentHitDensity);
 

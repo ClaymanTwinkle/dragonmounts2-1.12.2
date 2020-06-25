@@ -1,5 +1,8 @@
 package com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.weapons;
 
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedBlock;
+import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -16,10 +19,6 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTameableDragon;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedBlock;
-import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedEntity;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -32,8 +31,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * 3) affectEntity() to apply an area of effect to the given entity (eg damage it)
  */
 public class BreathWeaponEnder extends BreathWeapon {
-
-    public EntityAreaEffectCloud entityareaeffectcloud;
 
     public BreathWeaponEnder(EntityTameableDragon i_dragon) {
         super(i_dragon);
@@ -62,16 +59,16 @@ public class BreathWeaponEnder extends BreathWeapon {
         EntityDragon dragon1 = new EntityDragon(world);
 
         if (!world.isRemote) {
-            entityareaeffectcloud = new EntityAreaEffectCloud(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
-            entityareaeffectcloud.setOwner(dragon1);
-            entityareaeffectcloud.setParticle(EnumParticleTypes.DRAGON_BREATH);
-            entityareaeffectcloud.setRadius(1.6F);
-            entityareaeffectcloud.setDuration(750);
-            entityareaeffectcloud.setRadiusPerTick((1.0F - entityareaeffectcloud.getRadius()) / (float) entityareaeffectcloud.getDuration());
-            entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.WITHER, 200, 1));
-
-            entityareaeffectcloud.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
             if (!block.isAir(iBlockState, world, blockPos) && rand.nextInt(500) == 1) {
+                EntityAreaEffectCloud entityareaeffectcloud = new EntityAreaEffectCloud(world, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+                entityareaeffectcloud.setOwner(dragon1);
+                entityareaeffectcloud.setParticle(EnumParticleTypes.DRAGON_BREATH);
+                entityareaeffectcloud.setRadius(1.6F);
+                entityareaeffectcloud.setDuration(750);
+                entityareaeffectcloud.setRadiusPerTick((1.0F - entityareaeffectcloud.getRadius()) / (float) entityareaeffectcloud.getDuration());
+                entityareaeffectcloud.addEffect(new PotionEffect(MobEffects.WITHER, 200, 1));
+                entityareaeffectcloud.setPosition(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+
                 world.spawnEntity(entityareaeffectcloud);
             }
         }

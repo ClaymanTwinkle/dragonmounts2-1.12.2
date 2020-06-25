@@ -4,7 +4,6 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTamea
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedBlock;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedEntity;
 import com.TheRPGAdventurer.ROTD.util.math.MathX;
-
 import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -15,13 +14,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
 import java.util.Map;
-import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -45,8 +42,6 @@ public class BreathWeaponAether extends BreathWeapon {
         IBlockState iBlockState=world.getBlockState(blockPos);
         Block block=iBlockState.getBlock();
 
-        Random rand=new Random();
-
         // effects- which occur after the block has been exposed for sufficient time
         // soft blocks such as sand, leaves, grass, flowers, plants, etc get blown away (destroyed)
         // blows away snow but not ice
@@ -54,9 +49,7 @@ public class BreathWeaponAether extends BreathWeapon {
         // extinguish torches
         // causes fire to spread rapidly - NO, this looks stupid, so delete it
 
-        if (block==null) return currentHitDensity;
         Material material=block.getMaterial(iBlockState);
-        if (material==null) return currentHitDensity;
 
         if (materialDisintegrateTime.containsKey(material)) {
             Integer disintegrationTime=materialDisintegrateTime.get(material);
@@ -69,21 +62,8 @@ public class BreathWeaponAether extends BreathWeapon {
         }
 
         if (material==Material.FIRE) {
-            final float THRESHOLD_FIRE_SPREAD=1;
-            final float MAX_FIRE_DENSITY=10;
-            final int MAX_PATH_LENGTH=4;
-            double density=currentHitDensity.getMaxHitDensity();
-            if (density > THRESHOLD_FIRE_SPREAD) {
-                int pathLength=MathHelper.floor(MAX_PATH_LENGTH / MAX_FIRE_DENSITY * density);
-                if (pathLength > MAX_PATH_LENGTH) {
-                    pathLength=MAX_PATH_LENGTH;
-                }
-                //        spreadFire(world, blockPos, pathLength);    // removed because it didn't work well
-            }
             return currentHitDensity;
-        }
-
-        if (block==Blocks.TORCH) {
+        } else if (block==Blocks.TORCH) {
             final float THRESHOLD_FIRE_EXTINGUISH=1;
             if (currentHitDensity.getMaxHitDensity() > THRESHOLD_FIRE_EXTINGUISH) {
                 final boolean DROP_BLOCK=true;
@@ -91,9 +71,7 @@ public class BreathWeaponAether extends BreathWeapon {
                 return new BreathAffectedBlock();
             }
             return currentHitDensity;
-        }
-
-        if (block==Blocks.GLASS_PANE || block==Blocks.STAINED_GLASS_PANE) {
+        } else if (block==Blocks.GLASS_PANE || block==Blocks.STAINED_GLASS_PANE) {
             final float THRESHOLD_SMASH_PANE=1;
             if (currentHitDensity.getMaxHitDensity() > THRESHOLD_SMASH_PANE) {
                 final boolean DROP_BLOCK=true;
@@ -135,13 +113,9 @@ public class BreathWeaponAether extends BreathWeapon {
 
         final float DAMAGE_PER_HIT_DENSITY=FIRE_DAMAGE * hitDensity;
 
-        //    System.out.format("Old entity motion:[%.2f, %.2f, %.2f]\n", entity.motionX, entity.motionY, entity.motionZ);
         // push in the direction of the wind, but add a vertical upthrust as well
-        final double FORCE_MULTIPLIER=0.05;
         final double VERTICAL_FORCE_MULTIPLIER=0.05;
         float airForce=currentHitDensity.getHitDensity();
-        Vec3d airForceDirection=currentHitDensity.getHitDensityDirection();
-        Vec3d airMotion=MathX.multiply(airForceDirection, FORCE_MULTIPLIER);
 
         final double WT_ENTITY=0.05;
         final double WT_AIR=1 - WT_ENTITY;
@@ -153,16 +127,8 @@ public class BreathWeaponAether extends BreathWeapon {
             final double GRAVITY_OFFSET=-0.08;
             Vec3d up=new Vec3d(0, 1, 0);
             Vec3d upMotion=MathX.multiply(up, VERTICAL_FORCE_MULTIPLIER * airForce);
-            //      System.out.format("upMotion:%s\n", upMotion);
             entity.motionY=WT_ENTITY * (entity.motionY - GRAVITY_OFFSET) + WT_AIR * upMotion.y;
         }
-
-        //    System.out.format("airMotion:%s\n", airMotion);
-        //    System.out.format("New entity motion:[%.2f, %.2f, %.2f]\n", entity.motionX, entity.motionY, entity.motionZ);
-
-        final int DELAY_UNTIL_DECAY=5;
-        final float DECAY_PERCENTAGE_PER_TICK=10.0F;
-        //        currentHitDensity.setDecayParameters(DECAY_PERCENTAGE_PER_TICK, DELAY_UNTIL_DECAY);
 
         return currentHitDensity;
     }

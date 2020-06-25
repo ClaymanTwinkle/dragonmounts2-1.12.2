@@ -62,10 +62,10 @@ public class EntityAIDragonPlayerControl extends EntityAIDragonBase {
         // if we're breathing at a target, look at it
         if ((dragon.isUsingBreathWeapon() && dragon.getBreed().canUseBreathWeapon())) {
             Vec3d dragonEyePos = dragon.getPositionVector().add(0, dragon.getEyeHeight(), 0);
-            Vec3d lookDirection = rider.getLook(1.0F);
+            Vec3d lookDirection = rider.getLookVec();
             Vec3d endOfLook = dragonEyePos.add(lookDirection.x, lookDirection.y, lookDirection.z);
             dragon.getLookHelper().setLookPosition(endOfLook.x, endOfLook.y, endOfLook.z,
-                    90, 120);
+                    dragon.getHorizontalFaceSpeed(), dragon.getVerticalFaceSpeed());
             dragon.updateIntendedRideRotation(rider);
         }
 

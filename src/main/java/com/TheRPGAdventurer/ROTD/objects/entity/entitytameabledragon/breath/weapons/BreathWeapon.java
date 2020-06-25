@@ -5,10 +5,7 @@ import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.EntityTamea
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedBlock;
 import com.TheRPGAdventurer.ROTD.objects.entity.entitytameabledragon.breath.BreathAffectedEntity;
 import com.TheRPGAdventurer.ROTD.util.math.MathX;
-
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -16,9 +13,6 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
@@ -26,7 +20,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
-import java.util.HashMap;
 import java.util.Random;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -64,11 +57,10 @@ public class BreathWeapon {
      * Instead of programming the blocks one by one. I dunno if that was allowed
      */
     public int processFlammability(Block block, World world, BlockPos sideToIgnite, EnumFacing facing) {
-        int flammability = 0;
         try {
-            return flammability = block.getFlammability(world, sideToIgnite, facing);
+            return block.getFlammability(world, sideToIgnite, facing);
         } catch (IllegalArgumentException e) {
-            return flammability = 3;
+            return 3;
         }
     }
 
@@ -104,7 +96,6 @@ public class BreathWeapon {
             if (processFlammability(block, world, sideToIgnite, facing) > 0) {
                 int flammability = processFlammability(block, world, sideToIgnite, facing);
                 float thresholdForIgnition = convertFlammabilityToHitDensityThreshold(flammability);
-                float thresholdForDestruction = thresholdForIgnition * 10;
                 float densityOfThisFace = currentHitDensity.getHitDensity(facing);
                 if (densityOfThisFace >= thresholdForIgnition && world.isAirBlock(sideToIgnite) && thresholdForIgnition != 0 && DragonMountsConfig.canFireBreathAffectBlocks) {
                     final float MIN_PITCH = 0.8F;
@@ -113,32 +104,10 @@ public class BreathWeapon {
                     world.playSound(sideToIgnite.getX() + 0.5, sideToIgnite.getY() + 0.5, sideToIgnite.getZ() + 0.5,
                             SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, VOLUME, MIN_PITCH + rand.nextFloat() * (MAX_PITCH - MIN_PITCH), false);
                     burnBlocks(sideToIgnite, rand, 22, world);
-
-                    //    if (densityOfThisFace >= thresholdForDestruction && state.getBlockHardness(world, pos) != -1 && DragonMountsConfig.canFireBreathAffectBlocks) {
-                    //   world.setBlockToAir(pos);
                 }
             }
         }
 
-
-        Block block1 = state.getBlock();
-        Item itemFromBlock = Item.getItemFromBlock(block1);
-        ItemStack itemStack;
-        if (itemFromBlock != null && itemFromBlock.getHasSubtypes()) {
-            int metadata = block1.getMetaFromState(state);
-            itemStack = new ItemStack(itemFromBlock, 1, metadata);
-        } else {
-            itemStack = new ItemStack(itemFromBlock);
-        }
-
-        ItemStack smeltingResult = FurnaceRecipes.instance().getSmeltingResult(itemStack);
-        if (smeltingResult != null) {
-            Block smeltedResultBlock = Block.getBlockFromItem(smeltingResult.getItem());
-            if (smeltedResultBlock != null) {
-                IBlockState iBlockStateSmelted = world.getBlockState(pos);
-                iBlockStateSmelted = smeltedResultBlock.getStateFromMeta(smeltingResult.getMetadata());
-            }
-        }
         return new BreathAffectedBlock();  // reset to zero
     }
 
@@ -147,105 +116,6 @@ public class BreathWeapon {
             world.setBlockState(sideToIgnite, Blocks.FIRE.getDefaultState());
     }
 
-    protected static class BlockBurnProperties {
-        public IBlockState burnResult = null;  // null if no effect
-        public float threshold;
-    }
-
-    /**
-     * if sourceBlock can be smelted, return the smelting result as a block
-     *
-     * @param sourceBlock
-     * @return the smelting result, or null if none
-     */
-    private static boolean getSmeltingResult(IBlockState sourceBlock, World world, BlockPos pos) {
-        Block block = sourceBlock.getBlock();
-        Item itemFromBlock = Item.getItemFromBlock(block);
-        ItemStack itemStack;
-        if (itemFromBlock != null && itemFromBlock.getHasSubtypes()) {
-            int metadata = block.getMetaFromState(sourceBlock);
-            itemStack = new ItemStack(itemFromBlock, 1, metadata);
-        } else {
-            itemStack = new ItemStack(itemFromBlock);
-        }
-
-        ItemStack smeltingResult = FurnaceRecipes.instance().getSmeltingResult(itemStack);
-        if (smeltingResult != null) {
-            Block smeltedResultBlock = Block.getBlockFromItem(smeltingResult.getItem());
-            if (smeltedResultBlock != null) {
-                IBlockState iBlockStateSmelted = world.getBlockState(pos);
-                return iBlockStateSmelted == smeltedResultBlock.getStateFromMeta(smeltingResult.getMetadata());
-            }
-        }
-        return false;
-    }
-
-    /**
-     * if sourceBlock is a liquid or snow that can be molten or vaporised, return the result as a block
-     *
-     * @param sourceBlock
-     * @return the vaporised result, or null if none
-     */
-    private static boolean getVaporisedLiquidResult(IBlockState sourceBlock, World world, BlockPos pos) {
-        Block block = sourceBlock.getBlock();
-        Material material = block.getMaterial(sourceBlock);
-
-        if (material == Material.WATER) {
-            return world.setBlockState(pos, Blocks.AIR.getDefaultState());
-        } else if (material == Material.SNOW || material == Material.ICE) {
-            final int SMALL_LIQUID_AMOUNT = 4;
-            return world.setBlockState(pos, Blocks.FLOWING_WATER.getDefaultState().withProperty(BlockLiquid.LEVEL, SMALL_LIQUID_AMOUNT));
-        } else if (material == Material.PACKED_ICE || material == Material.CRAFTED_SNOW) {
-            final int LARGE_LIQUID_AMOUNT = 1;
-            return world.setBlockState(pos, Blocks.FLOWING_WATER.getDefaultState().withProperty(BlockLiquid.LEVEL, LARGE_LIQUID_AMOUNT));
-        }
-        return false;
-    }
-
-    /**
-     * if sourceBlock is a block that can be melted to lave, return the result as a block
-     *
-     * @param sourceBlock
-     * @return the molten lava result, or null if none
-     */
-    private static boolean getMoltenLavaResult(IBlockState sourceBlock, World world, BlockPos pos) {
-        Block block = sourceBlock.getBlock();
-        Material material = block.getMaterial(sourceBlock);
-
-        if (material == Material.SAND || material == Material.CLAY
-                || material == Material.GLASS || material == Material.IRON
-                || material == Material.GROUND || material == Material.ROCK) {
-            final int LARGE_LIQUID_AMOUNT = 1;
-            return world.setBlockState(pos, Blocks.LAVA.getDefaultState().withProperty(BlockLiquid.LEVEL, LARGE_LIQUID_AMOUNT));
-        }
-        return false;
-    }
-
-    /**
-     * if sourceBlock is a block that isn't flammable but can be scorched / changed, return the result as a block
-     *
-     * @param sourceBlock
-     * @return the scorched result, or null if none
-     */
-    private static boolean getScorchedResult(IBlockState sourceBlock, World world, BlockPos pos) {
-        Block block = sourceBlock.getBlock();
-        Material material = block.getMaterial(sourceBlock);
-
-        if (material == Material.GRASS) {
-            return world.setBlockState(pos, Blocks.DIRT.getDefaultState());
-        }
-        return false;
-    }
-
-    protected BreathAffectedEntity triggerExceptions(Entity entity, BreathAffectedEntity currentHitDensity) {
-        if (entity == dragon.getRidingCarriage() && dragon.getRidingCarriage() != null) {
-            if (dragon.getRidingCarriage().getRidingEntity() != null
-                    && dragon.getRidingCarriage().getRidingEntity() == entity) {
-                return null;
-            }
-        }
-        return currentHitDensity;
-    }
 
     protected BreathAffectedEntity triggerDamageExceptions(Entity entity, float DAMAGE_PER_HIT_DENSITY, Integer entityID, BreathAffectedEntity currentHitDensity) {
         if (entityID == dragon.getEntityId()) return null;
@@ -294,8 +164,6 @@ public class BreathWeapon {
 
     }
 
-    private HashMap<Block, BlockBurnProperties> blockBurnPropertiesCache = new HashMap<Block, BlockBurnProperties>();
-
     /**
      * if the hitDensity is high enough, manipulate the entity (eg set fire to it, damage it)
      * A dragon can't be damaged by its own breathweapon;
@@ -314,8 +182,6 @@ public class BreathWeapon {
         Entity entity = world.getEntityByID(entityID);
         if (entity == null || !(entity instanceof EntityLivingBase) || entity.isDead) return null;
 
-        final float CATCH_FIRE_THRESHOLD = 1.4F;
-        final float BURN_SECONDS_PER_HIT_DENSITY = 1.0F;
         float hitDensity = currentHitDensity.getHitDensity();
         final float DAMAGE_PER_HIT_DENSITY = FIRE_DAMAGE * hitDensity;
         MathX.clamp(hitDensity, 0, 2);
