@@ -84,7 +84,7 @@ public class DragonBrain extends DragonHelper {
         tasks.addTask(5, new EntityAIDragonTempt(dragon, 0.75, false, OreDictionary.getOres("listAllfishraw").stream().map(ItemStack::getItem).collect(Collectors.toSet()))); // mutex 2+1
         tasks.addTask(6, new EntityAIDragonFollowOwner(dragon, 1.5)); // mutex 2+1
         tasks.addTask(7, new EntityAIDragonFollowParent(dragon, 1.4f)); // mutex 1
-        tasks.addTask(8, new EntityAIMoveTowardsRestriction(dragon, 1)); // mutex 1
+        //tasks.addTask(8, new EntityAIMoveTowardsRestriction(dragon, 1)); // mutex 1
         tasks.addTask(9, new EntityAIWander(dragon, 1)); // mutex 1
         tasks.addTask(10, new EntityAIDragonWatchLiving(dragon, 16, 0.05f)); // mutex 2
         tasks.addTask(11, new EntityAIDragonWatchIdle(dragon)); // mutex 2

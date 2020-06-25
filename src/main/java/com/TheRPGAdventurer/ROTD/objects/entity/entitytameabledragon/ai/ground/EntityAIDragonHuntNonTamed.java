@@ -15,11 +15,10 @@ import net.minecraft.entity.ai.EntityAITargetNonTamed;
 import net.minecraft.entity.passive.*;
 
 /**
- *
  * @author Nico Bergemann <barracuda415 at yahoo.de>
  */
 public class EntityAIDragonHuntNonTamed extends EntityAITargetNonTamed {
-    
+
     private final EntityTameableDragon dragon;
 
     public EntityAIDragonHuntNonTamed(EntityTameableDragon dragon) {
@@ -29,7 +28,7 @@ public class EntityAIDragonHuntNonTamed extends EntityAITargetNonTamed {
 
     @Override
     public boolean shouldExecute() {
-        return dragon.isAdult() && dragon.getHunger() < 50 && super.shouldExecute();
+        return dragon.getControllingPlayer() == null && dragon.isAdult() && dragon.getHunger() < 50 && super.shouldExecute();
     }
-    
+
 }

@@ -112,13 +112,6 @@ public class DragonRenderer extends RenderLiving<EntityTameableDragon> {
         } else {
             super.doRender(dragon, x, y, z, yaw, partialTicks);
         }
-
-        if (dragon.healingEnderCrystal != null) {
-            this.bindTexture(ENDERCRYSTAL_BEAM_TEXTURES);
-            float f = MathHelper.sin(((float) dragon.healingEnderCrystal.ticksExisted + partialTicks) * 0.2F) / 2.0F + 0.5F;
-            f = (f * f + f) * 0.2F;
-            renderCrystalBeams(x, y, z, partialTicks, dragon.posX + (dragon.prevPosX - dragon.posX) * (double) (1.0F - partialTicks), dragon.posY + (dragon.prevPosY - dragon.posY) * (double) (1.0F - partialTicks), dragon.posZ + (dragon.prevPosZ - dragon.posZ) * (double) (1.0F - partialTicks), dragon.ticksExisted, dragon.healingEnderCrystal.posX, (double) f + dragon.healingEnderCrystal.posY, dragon.healingEnderCrystal.posZ);
-        }
     }
 
     @Override

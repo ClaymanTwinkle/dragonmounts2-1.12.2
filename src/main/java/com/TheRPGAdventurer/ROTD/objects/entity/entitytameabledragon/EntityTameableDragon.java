@@ -36,7 +36,6 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.effect.EntityLightningBolt;
-import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
@@ -83,7 +82,7 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     private static final Logger L = LogManager.getLogger();
     // base attributes
     private static final double BASE_GROUND_SPEED = 0.4;
-    private static final double BASE_AIR_SPEED = 1.2;
+    private static final double BASE_AIR_SPEED = 1.4;
     private static final IAttribute MOVEMENT_SPEED_AIR = new RangedAttribute(null, "generic.movementSpeedAir", BASE_AIR_SPEED, 0.0, Double.MAX_VALUE).setDescription("Movement Speed Air").setShouldWatch(true);
     private static final double BASE_DAMAGE = DragonMountsConfig.BASE_DAMAGE;
     private static final double BASE_ARMOR = DragonMountsConfig.ARMOR;
@@ -106,7 +105,6 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
     private final Map<Class, DragonHelper> helpers = new HashMap<>();
     // client-only delegates
     private final DragonBodyHelper dragonBodyHelper = new DragonBodyHelper(this);
-    public EntityEnderCrystal healingEnderCrystal;
 
     private int inAirTicks;
     public int roarTicks;
@@ -613,52 +611,22 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
             this.removePotionEffect(MobEffects.WEAKNESS);
         }
 
-        if (!isDead) {
-            if (this.healingEnderCrystal != null) {
-                if (this.healingEnderCrystal.isDead) {
-                    this.healingEnderCrystal = null;
-                } else if (this.ticksExisted % 10 == 0) {
-                    if (this.getHealth() < this.getMaxHealth()) {
-                        this.setHealth(this.getHealth() + 1.0F);
-                    }
-
-                    addPotionEffect(new PotionEffect(MobEffects.STRENGTH, 15 * 20));
-                }
-            }
-
-            if (this.rand.nextInt(10) == 0) {
-                List<EntityEnderCrystal> list = this.world.getEntitiesWithinAABB(EntityEnderCrystal.class, this.getEntityBoundingBox().grow(32.0D));
-                EntityEnderCrystal entityendercrystal = null;
-                double d0 = Double.MAX_VALUE;
-
-                for (EntityEnderCrystal entityendercrystal1 : list) {
-                    double d1 = entityendercrystal1.getDistanceSq(this);
-                    if (d1 < d0) {
-                        d0 = d1;
-                        entityendercrystal = entityendercrystal1;
-                    }
-                }
-
-                this.healingEnderCrystal = entityendercrystal;
-            }
-        }
-
         doBlockCollisions();
-        List<Entity> list = this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().grow(0.2, -0.01, 0.2), EntitySelectors.getTeamCollisionPredicate(this));
-
-        if (!list.isEmpty() && isSaddled()) {
-            boolean onServer = isServer();
-
-            for (Entity entity : list) {
-                if (!entity.isPassenger(this) && !entity.isRiding() && entity instanceof EntityCarriage) {
-                    if (onServer && this.getPassengers().size() < 5 && !entity.isRiding() && !isBaby() && (isJuvenile() || isAdult())) {
-                        entity.startRiding(this);
-                    } else {
-                        this.applyEntityCollision(entity);
-                    }
-                }
-            }
-        }
+//        List<Entity> list = this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().grow(0.2, -0.01, 0.2), EntitySelectors.getTeamCollisionPredicate(this));
+//
+//        if (!list.isEmpty() && isSaddled()) {
+//            boolean onServer = isServer();
+//
+//            for (Entity entity : list) {
+//                if (!entity.isPassenger(this) && !entity.isRiding() && entity instanceof EntityCarriage) {
+//                    if (onServer && this.getPassengers().size() < 5 && !entity.isRiding() && !isBaby() && (isJuvenile() || isAdult())) {
+//                        entity.startRiding(this);
+//                    } else {
+//                        this.applyEntityCollision(entity);
+//                    }
+//                }
+//            }
+//        }
 
         Random rand = new Random();
         if (this.getBreed().getSneezeParticle() != null && rand.nextInt(700) == 1 && !this.isUsingBreathWeapon() && !isBaby() && !isEgg()) {

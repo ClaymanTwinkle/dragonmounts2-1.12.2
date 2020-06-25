@@ -16,6 +16,6 @@ public class EntityAIDragonNearestAttackableTarget extends EntityAINearestAttack
 
     @Override
     public boolean shouldExecute() {
-        return dragon.isAdult() && super.shouldExecute();
+        return dragon.getControllingPlayer() == null && dragon.isAdult() && super.shouldExecute();
     }
 }
