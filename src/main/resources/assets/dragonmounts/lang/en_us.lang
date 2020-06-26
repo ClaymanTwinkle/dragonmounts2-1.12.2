@@ -215,3 +215,17 @@ key.dragon.down=Down
 
 dragon.gender.male=Male
 dragon.gender.female=Female
+
+dragon.lifestage.name=Life Stage
+dragon.currentstage.name=Current Stage
+dragon.nextstage.name=Next Stage
+
+dragon.nontamed.name=NonTamed
+dragon.Tamed.name=Tamed
+
+dragon.lifestage.egg=egg
+dragon.lifestage.hatchling=hatchling
+dragon.lifestage.infant=infant
+dragon.lifestage.prejuvenile=pre juvenile
+dragon.lifestage.juvenile=juvenile
+dragon.lifestage.adult=adult

@@ -165,3 +165,17 @@ dragon.terra2=盖亚
 
 dragon.gender.male=雄
 dragon.gender.female=雌
+
+dragon.lifestage.name=成长阶段
+dragon.currentstage.name=当前阶段
+dragon.nextstage.name=下一阶段
+
+dragon.nontamed.name=未驯服
+dragon.Tamed.name=已驯服
+
+dragon.lifestage.egg=蛋
+dragon.lifestage.hatchling=孵化
+dragon.lifestage.infant=幼年
+dragon.lifestage.prejuvenile=童年
+dragon.lifestage.juvenile=少年
+dragon.lifestage.adult=成年
