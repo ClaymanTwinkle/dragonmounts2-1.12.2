@@ -211,3 +211,7 @@ key.dragon.boost=Flight Boost
 key.dragon.dismount=Shoulder Dismount
 key.dragon.lockY=Old Controls
 key.dragon.down=Down
+
+
+dragon.gender.male=Male
+dragon.gender.female=Female

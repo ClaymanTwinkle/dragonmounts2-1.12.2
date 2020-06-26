@@ -15,6 +15,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Keyboard;
@@ -87,9 +88,10 @@ public class GuiDragon extends GuiContainer {
      * Draw the foreground layer for the GuiContainer (everything in front of the
      * items)
      */
+    @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        this.fontRenderer.drawString(dragon.hasCustomName() ? dragon.getCustomNameTag() : "Dragon Inventory", 8, 6, dragon.getBreed().getColor());
-        this.fontRenderer.drawString(dragon.isMale() ? "M" : "FM", 155, 6, dragon.isMale() ? 0x0079be : 0Xff8b8b);
+        this.fontRenderer.drawString(dragon.hasCustomName() ? dragon.getCustomNameTag() : dragon.getDisplayName().getFormattedText(), 8, 6, dragon.getBreed().getColor());
+        this.fontRenderer.drawString(new TextComponentTranslation("dragon.gender." + (dragon.isMale() ? "male" : "female")).getFormattedText(), 155, 6, dragon.isMale() ? 0x0079be : 0Xff8b8b);
         GlStateManager.pushMatrix();
         GlStateManager.scale(0.6, 0.6, 0.6);
         this.fontRenderer.drawString(dragon.getHunger() + "/100", 60, 106, 0Xe99e0c);
