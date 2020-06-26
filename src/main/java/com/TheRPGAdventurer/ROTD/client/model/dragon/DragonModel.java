@@ -674,7 +674,7 @@ public class DragonModel extends ModelBase {
         DragonAnimator animator=dragon.getAnimator();
         animator.setMovement(moveTime, moveSpeed);
         animator.setLook(lookYaw, lookPitch);
-        animator.animate();
+        //animator.animate();
         updateFromAnimator(dragon);
 
         size=dragon.getScale();

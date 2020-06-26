@@ -612,21 +612,21 @@ public class EntityTameableDragon extends EntityTameable implements IShearable, 
         }
 
         doBlockCollisions();
-//        List<Entity> list = this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().grow(0.2, -0.01, 0.2), EntitySelectors.getTeamCollisionPredicate(this));
-//
-//        if (!list.isEmpty() && isSaddled()) {
-//            boolean onServer = isServer();
-//
-//            for (Entity entity : list) {
-//                if (!entity.isPassenger(this) && !entity.isRiding() && entity instanceof EntityCarriage) {
-//                    if (onServer && this.getPassengers().size() < 5 && !entity.isRiding() && !isBaby() && (isJuvenile() || isAdult())) {
-//                        entity.startRiding(this);
-//                    } else {
-//                        this.applyEntityCollision(entity);
-//                    }
-//                }
-//            }
-//        }
+        List<Entity> list = this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().grow(0.2, -0.01, 0.2), EntitySelectors.getTeamCollisionPredicate(this));
+
+        if (!list.isEmpty() && isSaddled()) {
+            boolean onServer = isServer();
+
+            for (Entity entity : list) {
+                if (!entity.isPassenger(this) && !entity.isRiding() && entity instanceof EntityCarriage) {
+                    if (onServer && this.getPassengers().size() < 5 && !entity.isRiding() && !isBaby() && (isJuvenile() || isAdult())) {
+                        entity.startRiding(this);
+                    } else {
+                        this.applyEntityCollision(entity);
+                    }
+                }
+            }
+        }
 
         Random rand = new Random();
         if (this.getBreed().getSneezeParticle() != null && rand.nextInt(700) == 1 && !this.isUsingBreathWeapon() && !isBaby() && !isEgg()) {
